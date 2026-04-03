@@ -12,7 +12,7 @@ namespace Server.Controllers
         [HttpGet] // /api/test
         public IActionResult Get()
         {
-            return Ok("Hello từ API 🚀");
+            return Ok("Hello từ API");
         }
 
         string str = "Host=aws-0-ap-northeast-1.pooler.supabase.com;" +
@@ -29,30 +29,22 @@ namespace Server.Controllers
             NpgsqlConnection conn;
             try
             {
-                //conn = new NpgsqlConnection(str);
-                //conn.Open();
-                //string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
-                //using (var cmd = new NpgsqlCommand(sql, conn))
-                //{
-                //    cmd.Parameters.AddWithValue("u", req.Username.Trim());
-                //    cmd.Parameters.AddWithValue("p", req.Password.Trim());
-                //    var reader = cmd.ExecuteReader();
-                //    if (reader.Read())
-                //    {
-                //        return Ok(new { message = "Đăng nhập thành công" });
-                //    }
-                //    else
-                //    {
-                //        return BadRequest(new { message = "Sai tài khoản" });
-                //    }
-                //}
-                if (req.Username == "Admin" && req.Password == "1234")
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    return Ok(new { message = "Đăng nhập thành công" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Sai tài khoản" });
+                    cmd.Parameters.AddWithValue("u", req.Username.Trim());
+                    cmd.Parameters.AddWithValue("p", req.Password.Trim());
+                    var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        return Ok(new { message = "Đăng nhập thành công" });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Sai tài khoản" });
+                    }
                 }
             }
             catch (Exception e)
