@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
+using System.Reflection.PortableExecutable;
 
 namespace Server.Controllers
 {
@@ -14,7 +15,13 @@ namespace Server.Controllers
             return Ok("Hello từ API 🚀");
         }
 
-        string str = "postgres://postgres.fauxrzhhtdiesxfxuftz:Nguyentrg2006$@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres";
+        string str = "Host=aws-0-ap-northeast-1.pooler.supabase.com;" +
+             "Port=6543;" +
+             "Database=postgres;" +
+             "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+             "Password=Nguyentrg2006$;" +
+             "SSL Mode=Require;" +
+             "Trust Server Certificate=true;";
 
         [HttpPost("login")] // /api/test/login
         public IActionResult Login([FromBody] LoginRequest req)
@@ -22,22 +29,30 @@ namespace Server.Controllers
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                //conn = new NpgsqlConnection(str);
+                //conn.Open();
+                //string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
+                //using (var cmd = new NpgsqlCommand(sql, conn))
+                //{
+                //    cmd.Parameters.AddWithValue("u", req.Username.Trim());
+                //    cmd.Parameters.AddWithValue("p", req.Password.Trim());
+                //    var reader = cmd.ExecuteReader();
+                //    if (reader.Read())
+                //    {
+                //        return Ok(new { message = "Đăng nhập thành công" });
+                //    }
+                //    else
+                //    {
+                //        return BadRequest(new { message = "Sai tài khoản" });
+                //    }
+                //}
+                if (req.Username == "Admin" && req.Password == "1234")
                 {
-                    cmd.Parameters.AddWithValue("u", req.Username.Trim());
-                    cmd.Parameters.AddWithValue("p", req.Password.Trim());
-                    var reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        return Ok(new { message = "Đăng nhập thành công" });
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = "Sai tài khoản" });
-                    }
+                    return Ok(new { message = "Đăng nhập thành công" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Sai tài khoản" });
                 }
             }
             catch (Exception e)
