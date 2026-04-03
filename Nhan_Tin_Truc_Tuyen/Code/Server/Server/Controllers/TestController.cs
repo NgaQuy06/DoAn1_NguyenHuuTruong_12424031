@@ -15,7 +15,7 @@ namespace Server.Controllers
         }
 
         string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
-                 "Port=5432;" +
+                 "Port=6543;" +
                  "Database=postgres;" +
                  "Username=postgres;" +
                  "Password=Nguyentrg2006$;" +
