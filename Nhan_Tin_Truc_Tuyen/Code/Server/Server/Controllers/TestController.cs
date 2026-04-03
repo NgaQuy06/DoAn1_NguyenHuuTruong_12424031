@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 
@@ -15,28 +14,42 @@ namespace Server.Controllers
             return Ok("Hello từ API 🚀");
         }
 
-        string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=nguyentrg2006;SSL Mode=Require;Trust Server Certificate=true;";
+        string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
+                 "Port=5432;" +
+                 "Database=postgres;" +
+                 "Username=postgres;" +
+                 "Password=Nguyentrg2006$;" +
+                 "SSL Mode=Require;" +
+                 "Trust Server Certificate=true;";
 
         [HttpPost("login")] // /api/test/login
         public IActionResult Login([FromBody] LoginRequest req)
         {
+            NpgsqlConnection conn;
             try
             {
-                using (var conn = new NpgsqlConnection(str))
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    Console.WriteLine("Kết nối thành công!");
+                    cmd.Parameters.AddWithValue("u", req.Username.Trim());
+                    cmd.Parameters.AddWithValue("p", req.Password.Trim());
+                    var reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        return Ok(new { message = "Đăng nhập thành công" });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Sai tài khoản" });
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Lỗi: " + e.Message);
+                return BadRequest(new { message = e.Message });
             }
-            if (req.Username == "admin" && req.Password == "1234")
-            {
-                return Ok(new { message = "Đăng nhập thành công" });
-            }
-            return BadRequest(new { message = "Sai tài khoản" });
         }
     }
 }
