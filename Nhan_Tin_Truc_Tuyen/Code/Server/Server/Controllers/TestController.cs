@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Reflection.PortableExecutable;
+using DotNetEnv;
 
 namespace Server.Controllers
 {
@@ -12,16 +13,16 @@ namespace Server.Controllers
         [HttpGet] // /api/test
         public IActionResult Get()
         {
-            return Ok("Hello từ API");
+            return Ok("Hello từ API 🚀");
         }
 
-        string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
-             "Port=5432;" +
-             "Database=postgres;" +
-             "Username=postgres;" +
-             "Password=Nguyentrg2006$;" +
-             "SSL Mode=Require;" +
-             "Trust Server Certificate=true;";
+        string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
+                     "Port=6543;" +
+                     "Database=postgres;" +
+                     "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+                     "Password=Nguyentrg2006$;" +
+                     "SSL Mode=Require;" +
+                     "Trust Server Certificate=true;";
 
         [HttpPost("login")] // /api/test/login
         public IActionResult Login([FromBody] LoginRequest req)
