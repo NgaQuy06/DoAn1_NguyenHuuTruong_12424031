@@ -15,13 +15,7 @@ namespace Server.Controllers
             return Ok("Hello từ API");
         }
 
-        string str = "Host=aws-0-ap-northeast-1.pooler.supabase.com;" +
-             "Port=6543;" +
-             "Database=postgres;" +
-             "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-             "Password=Nguyentrg2006$;" +
-             "SSL Mode=Require;" +
-             "Trust Server Certificate=true;";
+        string str = "postgresql://postgres:Nguyentrg2006$@db.fauxrzhhtdiesxfxuftz.supabase.co:5432/postgres";
 
         [HttpPost("login")] // /api/test/login
         public IActionResult Login([FromBody] LoginRequest req)
