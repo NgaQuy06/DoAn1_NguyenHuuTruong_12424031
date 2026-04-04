@@ -15,7 +15,13 @@ namespace Server.Controllers
             return Ok("Hello từ API");
         }
 
-        string str = "postgresql://postgres:Nguyentrg2006$@db.fauxrzhhtdiesxfxuftz.supabase.co:5432/postgres";
+        string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
+             "Port=5432;" +
+             "Database=postgres;" +
+             "Username=postgres;" +
+             "Password=Nguyentrg2006$;" +
+             "SSL Mode=Require;" +
+             "Trust Server Certificate=true;";
 
         [HttpPost("login")] // /api/test/login
         public IActionResult Login([FromBody] LoginRequest req)
