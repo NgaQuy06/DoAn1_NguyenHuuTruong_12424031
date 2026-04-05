@@ -32,20 +32,47 @@ namespace Server.Controllers
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                if (req.Type.Trim() == "dangnhap")
                 {
-                    cmd.Parameters.AddWithValue("u", req.Username.Trim());
-                    cmd.Parameters.AddWithValue("p", req.Password.Trim());
-                    var reader = cmd.ExecuteReader();
-                    if (reader.Read())
+                    string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return Ok(new { message = "Đăng nhập thành công" });
+                        cmd.Parameters.AddWithValue("u", req.Username.Trim());
+                        cmd.Parameters.AddWithValue("p", req.Password.Trim());
+                        var reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            return Ok(new { message = "Đăng nhập thành công" });
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "Sai tài khoản" });
+                        }
                     }
-                    else
+                }
+                else if (req.Type.Trim() == "dangky")
+                {
+                    string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"NgayTao\") VALUES (@a, @b, @c, @d)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return BadRequest(new { message = "Sai tài khoản" });
+                        cmd.Parameters.AddWithValue("a", req.Username.Trim());
+                        cmd.Parameters.AddWithValue("b", req.Password.Trim());
+                        cmd.Parameters.AddWithValue("c", req.Email.Trim());
+                        cmd.Parameters.AddWithValue("d", DateTime.Now);
+                        int reader = cmd.ExecuteNonQuery();
+                        if (reader > 0)
+                        {
+                            return Ok(new { message = "Đăng ký thành công" });
+                        }
+                        else
+                        {
+                            return BadRequest(new { message = "Đăng ký thất bại" });
+                        }
                     }
+                }
+                else
+                {
+                    return BadRequest(new { message = "Yêu cầu không hợp lệ" });
                 }
             }
             catch (Exception e)
