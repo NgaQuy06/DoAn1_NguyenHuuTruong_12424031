@@ -6,19 +6,14 @@ namespace Server
     public class ChatHub : Hub // Trung tâm kết nối
     {
 
-        public async Task SendMessage(string user, string message) // Client phải đặt tên hàm như này để gửi cho server
+        public async Task GuiTN(string user, string mess) // Client phải đặt tên hàm như này để gửi cho server
         {
-            await Clients.All.SendAsync("ReceiveMessage", user, message); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
+            await Clients.All.SendAsync("NhanTN", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
         }
 
-        public async Task InApp(string user)
+        public async Task TrangThaiTK(string mess)
         {
-            await Clients.All.SendAsync("Notification", user + " đã tham gia ứng dụng");
-        }
-
-        public async Task OutApp(string user)
-        {
-            await Clients.All.SendAsync("Notification", user + " đã rời khỏi ứng dụng");
+            await Clients.All.SendAsync("ThongBaoTK", mess);
         }
     }
 }
