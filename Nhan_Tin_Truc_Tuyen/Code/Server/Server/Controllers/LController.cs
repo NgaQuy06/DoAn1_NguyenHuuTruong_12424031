@@ -9,14 +9,14 @@ using System.Runtime.Intrinsics.X86;
 
 namespace Server.Controllers
 {
-    [Route("api/[controller]")] // controller = test
+    [Route("api/[controller]")] // api/l
     [ApiController]
-    public class TController : ControllerBase
+    public class LController : ControllerBase
     {
-        [HttpGet] // /api/test
+        [HttpGet] // /api/l
         public IActionResult Get()
         {
-            return Ok("Hello mn");
+            return Ok("Xin chào người dùng");
         }
 
         string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
@@ -27,8 +27,8 @@ namespace Server.Controllers
                      "SSL Mode=Require;" +
                      "Trust Server Certificate=true;";
 
-        [HttpPost("login")] // /api/test/login
-        public IActionResult Login([FromBody] LoginRequest req)
+        [HttpPost("dangnhap")] // /api/l/dangnhap
+        public IActionResult DangNhap([FromBody] LoginRequest req)
         {
             NpgsqlConnection conn;
             try
@@ -58,8 +58,8 @@ namespace Server.Controllers
             }
         }
 
-        [HttpPost("register")] // /api/test/register
-        public IActionResult Register([FromBody] RegisterRequest req)
+        [HttpPost("DangKy")]
+        public IActionResult DangKy([FromBody] RegisterRequest req)
         {
             NpgsqlConnection conn;
             try
