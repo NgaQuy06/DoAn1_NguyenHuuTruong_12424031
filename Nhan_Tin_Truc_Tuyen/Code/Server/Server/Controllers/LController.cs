@@ -22,7 +22,7 @@ namespace Server.Controllers
         string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
                      "Port=6543;" +
                      "Database=postgres;" +
-                     "User=postgres.fauxrzhhtdiesxfxuftz;" +
+                     "Username=postgres.fauxrzhhtdiesxfxuftz;" +
                      "Password=Nguyentrg2006$;" +
                      "SSL Mode=Require;" +
                      "Trust Server Certificate=true;";
