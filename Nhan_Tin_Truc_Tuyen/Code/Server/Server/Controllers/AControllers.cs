@@ -11,11 +11,5 @@ namespace Server.Controllers
         {
             return Ok("Xin chào người dùng");
         }
-
-        [HttpPost("Account")] // /api/a/Account
-        public IActionResult Account([FromBody] AccountRequest req)
-        {
-
-        }
     }
 }
