@@ -33,11 +33,12 @@ namespace Server.Controllers
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p";
+                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", req.Username.Trim());
                     cmd.Parameters.AddWithValue("p", req.Password.Trim());
+                    cmd.Parameters.AddWithValue("r", req.Role.Trim());
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
