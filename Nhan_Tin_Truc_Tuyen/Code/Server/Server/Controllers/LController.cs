@@ -19,7 +19,7 @@ namespace Server.Controllers
             return Ok("Xin chào người dùng");
         }
 
-        string str = "Host=aws-0-ap-southeast-1.pooler.supabase.com;" +
+        string str = "Host=aws-0-ap-northeast-1.pooler.supabase.com;" +
                      "Port=6543;" +
                      "Database=postgres;" +
                      "Username=postgres.fauxrzhhtdiesxfxuftz;" +
