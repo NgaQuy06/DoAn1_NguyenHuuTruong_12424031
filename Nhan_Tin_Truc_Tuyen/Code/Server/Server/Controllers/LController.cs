@@ -19,37 +19,19 @@ namespace Server.Controllers
             return Ok("Xin chào người dùng");
         }
 
-        string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
-                     "Port=6543;" +
-                     "Database=postgres;" +
-                     "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-                     "Password=Nguyentrg2006$;" +
-                     "SSL Mode=Require;" +
-                     "Trust Server Certificate=true;";
-
         [HttpPost("dangnhap")] // /api/l/dangnhap
         public IActionResult DangNhap([FromBody] LoginRequest req)
         {
-            NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                string result = Npg.DangNhap(req.Username, req.Password, req.Role);
+                if (result == "Ok")
                 {
-                    cmd.Parameters.AddWithValue("u", req.Username.Trim());
-                    cmd.Parameters.AddWithValue("p", req.Password.Trim());
-                    cmd.Parameters.AddWithValue("r", req.Role.Trim());
-                    var reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        return Ok(new { message = "Đăng nhập thành công" });
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = "Sai tài khoản hoặc mật khẩu" });
-                    }
+                    return Ok(new { message = "Đăng nhập thành công!" });
+                }
+                else
+                {
+                    return BadRequest(new { message = result });
                 }
             }
             catch (Exception e)
@@ -61,32 +43,16 @@ namespace Server.Controllers
         [HttpPost("DangKy")]
         public IActionResult DangKy([FromBody] RegisterRequest req)
         {
-            NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\") VALUES (@a, @b, @c, @d, @e, @f)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                string result = Npg.DangKy(req.Username, req.Password, req.Email);
+                if (result == "Ok")
                 {
-                    cmd.Parameters.AddWithValue("a", req.Username.Trim());
-                    cmd.Parameters.AddWithValue("b", req.Password.Trim());
-                    if (string.IsNullOrWhiteSpace(req.Email))
-                        cmd.Parameters.AddWithValue("c", DBNull.Value);
-                    else
-                        cmd.Parameters.AddWithValue("c", req.Email.Trim());
-                    cmd.Parameters.AddWithValue("d", "Không hoạt động");
-                    cmd.Parameters.AddWithValue("e", "Người dùng mới");
-                    cmd.Parameters.AddWithValue("f", DateTime.Now);
-                    int reader = cmd.ExecuteNonQuery();
-                    if (reader > 0)
-                    {
-                        return Ok(new { message = "Đăng ký thành công" });
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = "Đăng ký thất bại" });
-                    }
+                    return Ok(new { message = "Đăng ký thành công!" });
+                }
+                else
+                {
+                    return BadRequest(new { message = result });
                 }
             }
             catch (Exception e)
