@@ -5,7 +5,7 @@ namespace Server
 {
     public class Npg
     {
-        public static string str = "Host=aws-0-ap-southeast-1.pooler.supabase.com;" +
+        public static string str = "Host=aws-1-ap-southeast-1.pooler.supabase.com;" +
              "Port=6543;" +
              "Database=postgres;" +
              "Username=postgres.fauxrzhhtdiesxfxuftz;" +
