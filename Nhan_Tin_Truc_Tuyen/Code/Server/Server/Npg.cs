@@ -173,7 +173,7 @@ namespace Server
             {
                 Console.WriteLine("Lỗi đếm tài khoản: " + ex.Message);
             }
-            return "1";
+            return "0";
         }
 
         public static string TongTN()
@@ -194,7 +194,7 @@ namespace Server
             { 
                 Console.WriteLine("Lỗi đếm tin nhắn: " + ex.Message);
             }
-            return "1";
+            return "0";
         }
     }
 
