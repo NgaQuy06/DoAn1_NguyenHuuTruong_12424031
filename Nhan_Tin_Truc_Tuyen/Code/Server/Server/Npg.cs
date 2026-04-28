@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Npgsql;
+using System.Data;
 
 namespace Server
 {
     public class Npg
     {
-        public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com" +
-                                   "Port=6543;" +
-                                   "Database=postgres;" +
-                                   "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-                                   "Password=Nguyentrg2006$;" +
-                                   "SSL Mode=Require;" +
-                                   "Trust Server Certificate=true;";
+        public static string str = "Host=aws-0-ap-southeast-1.pooler.supabase.com;" +
+             "Port=6543;" +
+             "Database=postgres;" +
+             "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+             "Password=Nguyentrg2006$;" +
+             "SSL Mode=Require;" +
+             "Trust Server Certificate=true;";
 
         public static string DangNhap(string username, string password, string role)
         {
@@ -78,5 +79,43 @@ namespace Server
                 return "Lỗi đăng ký: " + e.Message;
             }
         }
+
+        public static List<ThongTinBB> TimKiemBB(string username)
+        {
+            var list = new List<ThongTinBB>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("u", username.Trim());
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new ThongTinBB
+                            {
+                                TenTK = reader["TenTK"].ToString(),
+                                BietDanh = reader["BietDanh"].ToString(),
+                                TrangThai = reader["TrangThai"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return list;
+        }
+    }
+
+    public class ThongTinBB
+    {
+        public string TenTK { get; set; }
+        public string BietDanh { get; set; }
+        public string TrangThai { get; set; }
     }
 }
