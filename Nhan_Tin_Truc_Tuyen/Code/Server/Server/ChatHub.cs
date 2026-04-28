@@ -48,9 +48,16 @@ namespace Server
 
         public async Task TongTKTN()
         {
-            var tk = Npg.TongTK();
-            var tn = Npg.TongTN();
-            await Clients.Caller.SendAsync("TongTKTN", tk, tn);
+            try
+            {
+                int tk = int.Parse(Npg.TongTK());
+                int tn = int.Parse(Npg.TongTN());
+                await Clients.Caller.SendAsync("TongTKTN", tk, tn);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
         }
     }
 }
