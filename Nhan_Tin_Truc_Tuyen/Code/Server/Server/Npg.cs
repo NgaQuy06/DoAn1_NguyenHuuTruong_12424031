@@ -6,11 +6,11 @@ namespace Server
 {
     public class Npg
     {
-        public static string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
-"Port=5432;" +
-"Username=postgres;" +
-"Password=Nguyentrg2006$;" +
+        public static string str = "aws-1-ap-northeast-1.pooler.supabase.com;" +
+"Port=6543;" +
 "Database=postgres;" +
+"Username=postgres.fauxrzhhtdiesxfxuftz;" +
+"Password=Nguyentrg2006$;" +
 "SSL Mode=Require;" +
 "Trust Server Certificate=true;" +
 "Timeout=15;";
