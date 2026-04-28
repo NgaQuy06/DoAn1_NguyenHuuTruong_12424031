@@ -72,5 +72,18 @@ namespace Server
                 await Clients.Caller.SendAsync("Loi", ex.Message);
             }
         }
+
+        public async Task TinNhanDienDan()
+        {
+            try
+            {
+                var list = Npg.TinNhanDienDan();
+                await Clients.Caller.SendAsync("TinNhanDienDan", list);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
     }
 }

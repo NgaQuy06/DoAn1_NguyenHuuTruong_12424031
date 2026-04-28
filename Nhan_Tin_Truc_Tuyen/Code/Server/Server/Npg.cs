@@ -190,8 +190,8 @@ namespace Server
                     return reader.ToString();
                 }
             }
-            catch (Exception ex) 
-            { 
+            catch (Exception ex)
+            {
                 Console.WriteLine("Lỗi đếm tin nhắn: " + ex.Message);
             }
             return "1";
@@ -229,6 +229,35 @@ namespace Server
 
             return list;
         }
+
+        public static List<TinNhanDienDan> TinNhanDienDan()
+        {
+            var list = new List<TinNhanDienDan>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\" FROM public.\"TinNhan\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" DESC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new TinNhanDienDan
+                            {
+                                TenTK = reader.GetString(0),
+                                NoiDung = reader.GetString(1),
+                                NgayGui = reader.GetDateTime(2)
+                            });
+                        }
+                    }
+                }
+            }
+            catch { return list; }
+            return list;
+        }
     }
 
     public class ThongTinBB
@@ -246,5 +275,12 @@ namespace Server
         public string TrangThai { get; set; }
         public string BietDanh { get; set; }
         public DateTime NgayTao { get; set; }
+    }
+
+    public class TinNhanDienDan
+    {
+        public string TenTK { get; set; }
+        public string NoiDung { get; set; }
+        public DateTime NgayGui { get; set; }
     }
 }
