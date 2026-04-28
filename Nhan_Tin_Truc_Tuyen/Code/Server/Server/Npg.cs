@@ -88,10 +88,10 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" like @u";
+                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("u", "%" + username.Trim());
+                    cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
