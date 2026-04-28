@@ -12,8 +12,7 @@ namespace Server
 "Username=postgres.fauxrzhhtdiesxfxuftz;" +
 "Password=Nguyentrg2006$;" +
 "SSL Mode=Require;" +
-"Trust Server Certificate=true;" +
-"Timeout=15;";
+"Trust Server Certificate=true;";
 
         public static string DangNhap(string username, string password, string role)
         {
