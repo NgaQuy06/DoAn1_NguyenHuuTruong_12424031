@@ -7,19 +7,15 @@ namespace Server
     {
         public async Task GuiTNChung(string user, string mess) // Client phải đặt tên hàm như này để gửi cho server
         {
-            NpgsqlConnection conn;
             try
-            {
-                conn = new NpgsqlConnection(Npg.str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"TinNhan\" ()";
-                using (var cmd = new NpgsqlCommand(sql, conn))
-                {
-                    var reader = cmd.ExecuteReader();
-                }
+            { 
+                Npg.TinNhan(user, mess);
                 await Clients.All.SendAsync("NhanTN", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
             }
-            catch { }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message); // Gửi lỗi về cho Client gọi hàm này
+            }
         }
 
         public async Task GuiTNRieng(string fromUser, string toUser, string mess)
@@ -36,6 +32,18 @@ namespace Server
         {
             var list = Npg.TimKiemBB(username);
             await Clients.Caller.SendAsync("TimKiemBB", list);
+        }
+
+        public async Task DaThamGia(string username)
+        {
+            Npg.CapNhatTrangThai(username, "Đang trực tuyến");
+            await Clients.All.SendAsync("ThongBaoTK", username);
+        }
+
+        public async Task DaRoiKhoi(string username)
+        {
+            Npg.CapNhatTrangThai(username, "Đang ngoại tuyến");
+            await Clients.All.SendAsync("ThongBaoTK", username);
         }
     }
 }

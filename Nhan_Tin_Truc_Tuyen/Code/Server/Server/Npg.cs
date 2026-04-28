@@ -106,9 +106,47 @@ namespace Server
                     }
                 }
             }
-            catch { }
+            catch { return list; }
 
             return list;
+        }
+
+        public static void TinNhan(string username, string message)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\") VALUES (@a, @b, @c, @d)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("a", username);
+                    cmd.Parameters.AddWithValue("b", 0);
+                    cmd.Parameters.AddWithValue("c", message.Trim());
+                    cmd.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch { }
+        }
+
+        public static void CapNhatTrangThai(string username, string trangThai)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @trangThai WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t", username);
+                    cmd.Parameters.AddWithValue("trangThai", trangThai);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch {}
         }
     }
 
