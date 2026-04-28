@@ -59,5 +59,18 @@ namespace Server
                 await Clients.Caller.SendAsync("Loi", ex.Message);
             }
         }
+
+        public async Task ThongTinTK()
+        {
+            try
+            {
+                var list = Npg.ThongTinTK();
+                await Clients.Caller.SendAsync("ThongTinTK", list);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
     }
 }

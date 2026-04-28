@@ -173,7 +173,7 @@ namespace Server
             {
                 Console.WriteLine("Lỗi đếm tài khoản: " + ex.Message);
             }
-            return "0";
+            return "1";
         }
 
         public static string TongTN()
@@ -194,7 +194,40 @@ namespace Server
             { 
                 Console.WriteLine("Lỗi đếm tin nhắn: " + ex.Message);
             }
-            return "0";
+            return "1";
+        }
+
+        public static List<ThongTinTK> ThongTinTK()
+        {
+            var list = new List<ThongTinTK>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT \"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\" FROM public.\"TaiKhoan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new ThongTinTK
+                            {
+                                TenTK = reader.GetString(0),
+                                MatKhau = reader.GetString(1),
+                                Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                TrangThai = reader.GetString(3),
+                                BietDanh = reader.IsDBNull(4) ? null : reader.GetString(4),
+                                NgayTao = reader.GetDateTime(5)
+                            });
+                        }
+                    }
+                }
+            }
+            catch { return list; }
+
+            return list;
         }
     }
 
@@ -203,5 +236,15 @@ namespace Server
         public string TenTK { get; set; }
         public string BietDanh { get; set; }
         public string TrangThai { get; set; }
+    }
+
+    public class ThongTinTK
+    {
+        public string TenTK { get; set; }
+        public string MatKhau { get; set; }
+        public string Email { get; set; }
+        public string TrangThai { get; set; }
+        public string BietDanh { get; set; }
+        public DateTime NgayTao { get; set; }
     }
 }
