@@ -45,5 +45,12 @@ namespace Server
             Npg.CapNhatTrangThai(username, "Đang ngoại tuyến");
             await Clients.All.SendAsync("ThongBaoTK", username + " đã ngoại tuyến!");
         }
+
+        public async Task TongTKTN()
+        {
+            var tk = Npg.TongTK();
+            var tn = Npg.TongTN();
+            await Clients.Caller.SendAsync("TongTKTN", tk, tn);
+        }
     }
 }

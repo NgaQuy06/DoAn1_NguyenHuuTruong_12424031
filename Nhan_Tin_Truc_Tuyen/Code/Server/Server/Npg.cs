@@ -7,12 +7,12 @@ namespace Server
     public class Npg
     {
         public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
-                                   "Port=6543;" +
-                                   "Database=postgres;" +
-                                   "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-                                   "Password=Nguyentrg2006$;" +
-                                   "SSL Mode=Require;" +
-                                   "Trust Server Certificate=true;";
+                           "Port=6543;" +
+                           "Database=postgres;" +
+                           "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+                           "Password=Nguyentrg2006$;" +
+                           "SSL Mode=Require;" +
+                           "Trust Server Certificate=true;";
 
         public static string DangNhap(string username, string password, string role)
         {
@@ -146,7 +146,43 @@ namespace Server
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch {}
+            catch { }
+        }
+
+        public static string TongTK()
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    var reader = cmd.ExecuteScalar();
+                    return reader.ToString();
+                }
+            }
+            catch { }
+            return "0";
+        }
+
+        public static string TongTN()
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT COUNT(*) FROM public.\"TinNhan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    var reader = cmd.ExecuteScalar();
+                    return reader.ToString();
+                }
+            }
+            catch { }
+            return "0";
         }
     }
 
