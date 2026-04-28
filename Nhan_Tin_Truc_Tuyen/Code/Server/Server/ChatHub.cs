@@ -37,13 +37,13 @@ namespace Server
         public async Task DaThamGia(string username)
         {
             Npg.CapNhatTrangThai(username, "Đang trực tuyến");
-            await Clients.All.SendAsync("ThongBaoTK", username);
+            await Clients.All.SendAsync("ThongBaoTK", username + " đã trực tuyến!");
         }
 
         public async Task DaRoiKhoi(string username)
         {
             Npg.CapNhatTrangThai(username, "Đang ngoại tuyến");
-            await Clients.All.SendAsync("ThongBaoTK", username);
+            await Clients.All.SendAsync("ThongBaoTK", username + " đã ngoại tuyến!");
         }
     }
 }
