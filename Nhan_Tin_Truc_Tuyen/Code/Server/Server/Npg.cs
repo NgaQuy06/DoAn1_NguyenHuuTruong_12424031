@@ -128,7 +128,10 @@ namespace Server
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi tin nhắn: " + ex.Message);
+            }
         }
 
         public static void CapNhatTrangThai(string username, string trangThai)
@@ -146,7 +149,10 @@ namespace Server
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi cập nhật trạng thái: " + ex.Message);
+            }
         }
 
         public static string TongTK()
@@ -163,8 +169,11 @@ namespace Server
                     return reader.ToString();
                 }
             }
-            catch { }
-            return "0";
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi đếm tài khoản: " + ex.Message);
+            }
+            return "1";
         }
 
         public static string TongTN()
@@ -181,8 +190,11 @@ namespace Server
                     return reader.ToString();
                 }
             }
-            catch { }
-            return "0";
+            catch (Exception ex) 
+            { 
+                Console.WriteLine("Lỗi đếm tin nhắn: " + ex.Message);
+            }
+            return "1";
         }
     }
 
