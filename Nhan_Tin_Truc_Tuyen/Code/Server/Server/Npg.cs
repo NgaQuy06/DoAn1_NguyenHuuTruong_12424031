@@ -7,12 +7,12 @@ namespace Server
     public class Npg
     {
         public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
-"Port=6543;" +
-"Database=postgres;" +
-"Username=postgres.fauxrzhhtdiesxfxuftz;" +
-"Password=Nguyentrg2006$;" +
-"SSL Mode=Require;" +
-"Trust Server Certificate=true;";
+                                   "Port=6543;" +
+                                   "Database=postgres;" +
+                                   "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+                                   "Password=Nguyentrg2006$;" +
+                                   "SSL Mode=Require;" +
+                                   "Trust Server Certificate=true;";
 
         public static string DangNhap(string username, string password, string role)
         {
@@ -88,10 +88,10 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" like @u";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("u", username.Trim());
+                    cmd.Parameters.AddWithValue("u", "%" + username.Trim());
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
