@@ -6,13 +6,13 @@ namespace Server
 {
     public class Npg
     {
-        public static string str = "Host=aws-0-ap-southeast-1.pooler.supabase.com;" +
-             "Port=6543;" +
-             "Database=postgres;" +
-             "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-             "Password=Nguyentrg2006$;" +
-             "SSL Mode=Require;" +
-             "Trust Server Certificate=true;";
+        public static string str = "Host=db.fauxrzhhtdiesxfxuftz.supabase.co;" +
+                                   "Port=5432;" +
+                                   "Database=postgres;" +
+                                   "Username=postgres;" +
+                                   "Password=Nguyentrg2006$;" +
+                                   "SSL Mode=Require;" +
+                                   "Trust Server Certificate=true;";
 
         public static string DangNhap(string username, string password, string role)
         {
