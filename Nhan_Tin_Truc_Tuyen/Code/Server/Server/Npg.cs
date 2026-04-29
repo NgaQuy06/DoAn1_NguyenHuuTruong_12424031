@@ -122,8 +122,8 @@ namespace Server
                 conn = new NpgsqlConnection(str);
                 conn.Open();
 
-                string maTK = "";
-                string sql1 = "SELECT \"TenTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                int maTK = -1;
+                string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
                 using (var cmd1 = new NpgsqlCommand(sql1, conn))
                 {
                     cmd1.Parameters.AddWithValue("u", username.Trim());
@@ -133,7 +133,10 @@ namespace Server
                         Console.WriteLine("Tài khoản không tồn tại: " + username);
                         return;
                     }
-                    else maTK = reader.ToString();
+                    else
+                    {
+                        maTK = Convert.ToInt32(reader);
+                    }
                 }
 
                 string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\") VALUES (@a, @b, @c, @d)";
