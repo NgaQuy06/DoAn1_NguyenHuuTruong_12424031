@@ -106,7 +106,10 @@ namespace Server
                     }
                 }
             }
-            catch { return list; }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DB(tìm kiếm bạn bè): " + ex.Message);
+            }
 
             return list;
         }
@@ -130,7 +133,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi tin nhắn: " + ex.Message);
+                Console.WriteLine("Lỗi DB(tin nhắn): " + ex.Message);
             }
         }
 
@@ -151,7 +154,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi cập nhật trạng thái: " + ex.Message);
+                Console.WriteLine("Lỗi DB(cập nhật trạng thái): " + ex.Message);
             }
         }
 
@@ -171,7 +174,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi đếm tài khoản: " + ex.Message);
+                Console.WriteLine("Lỗi DB(tổng tài khoản): " + ex.Message);
             }
             return "1";
         }
@@ -192,7 +195,7 @@ namespace Server
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi đếm tin nhắn: " + ex.Message);
+                Console.WriteLine("Lỗi DB(tổng tin nhắn): " + ex.Message);
             }
             return "1";
         }
@@ -225,7 +228,11 @@ namespace Server
                     }
                 }
             }
-            catch { return list; }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DB(thông tin tài khoản): " + ex.Message);
+                throw;
+            }
 
             return list;
         }
@@ -247,15 +254,19 @@ namespace Server
                         {
                             list.Add(new TinNhanDienDan
                             {
-                                TenTK = reader.GetString(0),
-                                NoiDung = reader.GetString(1),
-                                NgayGui = reader.GetDateTime(2)
+                                TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2)
                             });
                         }
                     }
                 }
             }
-            catch { return list; }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DB(tin nhắn diễn đàn): " + ex.Message);
+                throw;
+            }
             return list;
         }
     }
