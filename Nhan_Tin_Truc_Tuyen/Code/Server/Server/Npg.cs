@@ -289,6 +289,27 @@ namespace Server
             }
             return list;
         }
+
+        public static int SoLuongTrucTuyen()
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\" WHERE \"TrangThai\" = 'Đang trực tuyến'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    var reader = cmd.ExecuteScalar();
+                    return Convert.ToInt32(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DB(số lượng trực tuyến): " + ex.Message);
+            }
+            return 0;
+        }
     }
 
     public class ThongTinBB

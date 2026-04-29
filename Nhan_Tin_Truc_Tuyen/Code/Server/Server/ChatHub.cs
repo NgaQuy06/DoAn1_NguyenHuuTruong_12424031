@@ -85,5 +85,18 @@ namespace Server
                 await Clients.Caller.SendAsync("Loi", ex.Message);
             }
         }
+
+        public async Task SoLuongTrucTuyen()
+        {
+            try
+            {
+                int count = Npg.SoLuongTrucTuyen();
+                await Clients.Caller.SendAsync("SoLuongTrucTuyen", count);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
     }
 }
