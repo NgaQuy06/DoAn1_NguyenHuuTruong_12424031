@@ -114,26 +114,42 @@ namespace Server
             return list;
         }
 
-        public static void TinNhan(string username, string message)
+        public static void ChenTinNhan(string username, string message)
         {
             NpgsqlConnection conn;
             try
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\") VALUES (@a, @b, @c, @d)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+
+                string maTK = "";
+                string sql1 = "SELECT \"TenTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                using (var cmd1 = new NpgsqlCommand(sql1, conn))
                 {
-                    cmd.Parameters.AddWithValue("a", username);
-                    cmd.Parameters.AddWithValue("b", 0);
-                    cmd.Parameters.AddWithValue("c", message.Trim());
-                    cmd.Parameters.AddWithValue("d", DateTime.Now);
-                    cmd.ExecuteNonQuery();
+                    cmd1.Parameters.AddWithValue("u", username.Trim());
+                    var reader = cmd1.ExecuteScalar();
+                    if (reader == null)
+                    {
+                        Console.WriteLine("Tài khoản không tồn tại: " + username);
+                        return;
+                    }
+                    else maTK = reader.ToString();
+                }
+
+                string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\") VALUES (@a, @b, @c, @d)";
+                using (var cmd2 = new NpgsqlCommand(sql2, conn))
+                {
+                    cmd2.Parameters.AddWithValue("a", maTK);
+                    cmd2.Parameters.AddWithValue("b", 0);
+                    cmd2.Parameters.AddWithValue("c", message.Trim());
+                    cmd2.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd2.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Lỗi DB(tin nhắn): " + ex.Message);
+                throw;
             }
         }
 
@@ -245,7 +261,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\" FROM public.\"TinNhan\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" DESC";
+                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\" FROM public.\"TinNhan\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" ASC";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     using (var reader = cmd.ExecuteReader())

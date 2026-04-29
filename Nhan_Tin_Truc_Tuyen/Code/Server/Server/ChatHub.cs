@@ -9,7 +9,7 @@ namespace Server
         {
             try
             { 
-                Npg.TinNhan(user, mess);
+                Npg.ChenTinNhan(user, mess);
                 await Clients.All.SendAsync("NhanTN", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
             }
             catch (Exception ex)
