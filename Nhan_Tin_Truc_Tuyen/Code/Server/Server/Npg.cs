@@ -139,13 +139,14 @@ namespace Server
                     }
                 }
 
-                string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\") VALUES (@a, @b, @c, @d)";
+                string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
                 using (var cmd2 = new NpgsqlCommand(sql2, conn))
                 {
                     cmd2.Parameters.AddWithValue("a", maTK);
                     cmd2.Parameters.AddWithValue("b", 0);
                     cmd2.Parameters.AddWithValue("c", message.Trim());
                     cmd2.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd2.Parameters.AddWithValue("e", username.Trim());
                     cmd2.ExecuteNonQuery();
                 }
             }
