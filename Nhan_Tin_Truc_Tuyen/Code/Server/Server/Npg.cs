@@ -265,7 +265,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\" FROM public.\"TinNhan\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" ASC";
+                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\", \"BietDanh\" FROM public.\"TinNhan\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" ASC";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     using (var reader = cmd.ExecuteReader())
@@ -276,7 +276,8 @@ namespace Server
                             {
                                 TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
                                 NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2)
+                                NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
+                                BietDanh = reader.IsDBNull(3) ? "" : reader.GetString(3)
                             });
                         }
                     }
@@ -334,5 +335,6 @@ namespace Server
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
+        public string BietDanh { get; set; }
     }
 }
