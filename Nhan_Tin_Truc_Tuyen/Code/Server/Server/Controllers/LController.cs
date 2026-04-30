@@ -16,7 +16,7 @@ namespace Server.Controllers
         [HttpGet] // /api/l
         public IActionResult Get()
         {
-            return Ok("Xin chào người dùng");
+            return Ok("Xin chào người dùng!");
         }
 
         [HttpPost("dangnhap")] // /api/l/dangnhap

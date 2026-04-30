@@ -6,13 +6,8 @@ namespace Server
 {
     public class Npg
     {
-        public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
-                           "Port=6543;" +
-                           "Database=postgres;" +
-                           "Username=postgres.fauxrzhhtdiesxfxuftz;" +
-                           "Password=Nguyentrg2006$;" +
-                           "SSL Mode=Require;" +
-                           "Trust Server Certificate=true;";
+        public static string str = Environment.GetEnvironmentVariable("DB_CONNECTION")
+                          ?? throw new Exception("Thiếu biến môi trường DB_CONNECTION");
 
         public static string DangNhap(string username, string password, string role)
         {
@@ -51,7 +46,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\") VALUES (@a, @b, @c, @d, @e, @f)";
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"TrangThai\") VALUES (@a, @b, @c, @d, @e, @f, @g)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("a", username.Trim());
@@ -63,6 +58,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("d", "Không hoạt động");
                     cmd.Parameters.AddWithValue("e", "Người dùng mới");
                     cmd.Parameters.AddWithValue("f", DateTime.Now);
+                    cmd.Parameters.AddWithValue("g", "Đang ngoại tuyến");
                     int reader = cmd.ExecuteNonQuery();
                     if (reader > 0)
                     {
