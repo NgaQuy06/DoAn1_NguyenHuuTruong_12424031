@@ -265,7 +265,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\", \"BietDanh\" FROM public.\"TinNhan\" JOIN public.\"TaiKhoan\" ON \"TinNhan\".\"TenTK\" = \"TaiKhoan\".\"TenTK\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" ASC";
+                string sql = "SELECT \"TenTK\", \"NoiDung\", \"NgayGui\", \"BietDanh\" FROM public.\"TinNhan\" tn JOIN public.\"TaiKhoan\" tk ON tn.\"TenTK\" = tk.\"TenTK\" WHERE \"MaCTC\" = 0 ORDER BY \"NgayGui\" ASC";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     using (var reader = cmd.ExecuteReader())
