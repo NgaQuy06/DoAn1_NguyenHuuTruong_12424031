@@ -12,7 +12,7 @@ namespace Server.Controllers
             return Ok("Xin chào người dùng!");
         }
 
-        [HttpPost("tinnhandiendan")] // /api/m/tinnhandiendan
+        [HttpGet("tinnhandiendan")] // /api/m/tinnhandiendan
         public IActionResult TinNhanDienDan()
         {
             try
