@@ -175,11 +175,12 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @trangThai WHERE \"TenTK\" = @t";
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt AND \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("t", username);
-                    cmd.Parameters.AddWithValue("trangThai", trangThai);
+                    cmd.Parameters.AddWithValue("tt", trangThai);
+                    cmd.Parameters.AddWithValue("tg", DateTime.Now);
                     cmd.ExecuteNonQuery();
                 }
             }
