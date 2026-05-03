@@ -43,6 +43,10 @@ namespace Server.Controllers
                 {
                     return Ok(new { message = "Đăng ký thành công!" });
                 }
+                else if (result == "Tên tài khoản đã tồn tại!")
+                {
+                    return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
+                }
                 else
                 {
                     return BadRequest(new { message = result });
