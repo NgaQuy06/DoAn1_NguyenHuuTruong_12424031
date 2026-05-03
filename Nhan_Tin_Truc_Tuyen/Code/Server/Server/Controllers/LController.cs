@@ -12,7 +12,7 @@ namespace Server.Controllers
             return Ok("Xin chào người dùng!");
         }
 
-        [HttpGet("dangnhap")] // /api/l/dangnhap
+        [HttpPost("dangnhap")] // /api/l/dangnhap
         public IActionResult DangNhap([FromBody] LoginRequest req)
         {
             try
