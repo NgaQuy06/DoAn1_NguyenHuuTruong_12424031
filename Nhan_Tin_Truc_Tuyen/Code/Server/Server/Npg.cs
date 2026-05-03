@@ -38,7 +38,7 @@ namespace Server
                     }
                 }
             }
-            catch (Exception e)
+            catch (NpgsqlException e)
             {
                 return "Lỗi đăng nhập: " + e.Message;
             }
@@ -51,7 +51,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"TrangThai\") VALUES (@a, @b, @c, @d, @e, @f, @g)";
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\") VALUES (@a, @b, @c, @d, @e, @f)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("a", username.Trim());
@@ -60,10 +60,9 @@ namespace Server
                         cmd.Parameters.AddWithValue("c", DBNull.Value);
                     else
                         cmd.Parameters.AddWithValue("c", email.Trim());
-                    cmd.Parameters.AddWithValue("d", "Không hoạt động");
+                    cmd.Parameters.AddWithValue("d", "Đang ngoại tuyến");
                     cmd.Parameters.AddWithValue("e", "Người dùng mới");
                     cmd.Parameters.AddWithValue("f", DateTime.Now);
-                    cmd.Parameters.AddWithValue("g", "Đang ngoại tuyến");
                     int reader = cmd.ExecuteNonQuery();
                     if (reader > 0)
                     {
@@ -75,7 +74,7 @@ namespace Server
                     }
                 }
             }
-            catch (Exception e)
+            catch (NpgsqlException e)
             {
                 return "Lỗi đăng ký: " + e.Message;
             }
@@ -115,7 +114,7 @@ namespace Server
             return list;
         }
 
-        public static void ChenTinNhan(string username, string message)
+        public static void ChenTNChung(string username, string message)
         {
             NpgsqlConnection conn;
             try
@@ -151,9 +150,23 @@ namespace Server
                     cmd2.ExecuteNonQuery();
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(tin nhắn): " + ex.Message);
+                throw;
+            }
+        }
+
+        public static void ChenTNRieng(string fromUser, string message)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(tin nhắn riêng): " + ex.Message);
                 throw;
             }
         }
@@ -173,7 +186,7 @@ namespace Server
                     cmd.ExecuteNonQuery();
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(cập nhật trạng thái): " + ex.Message);
             }
@@ -193,7 +206,7 @@ namespace Server
                     return reader.ToString();
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(tổng tài khoản): " + ex.Message);
             }
@@ -214,7 +227,7 @@ namespace Server
                     return reader.ToString();
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(tổng tin nhắn): " + ex.Message);
             }
@@ -249,7 +262,7 @@ namespace Server
                     }
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(thông tin tài khoản): " + ex.Message);
                 throw;
@@ -278,15 +291,42 @@ namespace Server
                                 TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
                                 NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
                                 NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
-                                BietDanh = reader.IsDBNull(3) ? "" : reader.GetString(3)
                             });
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(tin nhắn diễn đàn): " + ex.Message);
+                throw;
+            }
+            return list;
+        }
+
+        public static List<TinNhanRieng> TinNhanRieng(string user)
+        {
+            var list = new List<TinNhanRieng>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT ";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(tin nhắn riêng): " + ex.Message);
                 throw;
             }
             return list;
@@ -306,7 +346,7 @@ namespace Server
                     return Convert.ToInt32(reader);
                 }
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 Console.WriteLine("Lỗi DB(số lượng trực tuyến): " + ex.Message);
             }
@@ -336,6 +376,10 @@ namespace Server
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
-        public string BietDanh { get; set; }
+    }
+
+    public class TinNhanRieng
+    {
+
     }
 }

@@ -25,5 +25,19 @@ namespace Server.Controllers
                 return BadRequest(new { message = e.Message });
             }
         }
+
+        [HttpGet("tinnhanrieng")] // /api/m/tinnhanrieng
+        public IActionResult TinNhanRieng([FromQuery] string user)
+        {
+            try
+            {
+                var list = Npg.TinNhanRieng(user);
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

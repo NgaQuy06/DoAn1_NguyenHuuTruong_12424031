@@ -1,11 +1,4 @@
-﻿using DotNetEnv;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Npgsql;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Intrinsics.X86;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Server.Controllers
 {
@@ -19,7 +12,7 @@ namespace Server.Controllers
             return Ok("Xin chào người dùng!");
         }
 
-        [HttpPost("dangnhap")] // /api/l/dangnhap
+        [HttpGet("dangnhap")] // /api/l/dangnhap
         public IActionResult DangNhap([FromBody] LoginRequest req)
         {
             try
@@ -40,7 +33,7 @@ namespace Server.Controllers
             }
         }
 
-        [HttpPost("DangKy")]
+        [HttpGet("DangKy")]
         public IActionResult DangKy([FromBody] RegisterRequest req)
         {
             try

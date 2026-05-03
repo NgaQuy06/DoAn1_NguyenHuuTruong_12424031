@@ -9,8 +9,8 @@ namespace Server
         {
             try
             { 
-                Npg.ChenTinNhan(user, mess);
-                await Clients.All.SendAsync("NhanTN", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
+                Npg.ChenTNChung(user, mess);
+                await Clients.All.SendAsync("NhanTNChung", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
             }
             catch (Exception ex)
             {
@@ -20,7 +20,20 @@ namespace Server
 
         public async Task GuiTNRieng(string fromUser, string toUser, string mess)
         {
-            await Clients.Group(toUser).SendAsync("NhanTN", fromUser, mess);
+            try
+            {
+                //Npg.ChenTinNhan(fromUser, mess);
+
+                // gửi cho người nhận
+                await Clients.User(toUser).SendAsync("NhanTNRieng", fromUser, mess);
+
+                // gửi lại cho chính mình (để hiển thị)
+                await Clients.Caller.SendAsync("NhanTNRieng", fromUser, mess);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
         }
 
         public async Task TrangThaiTK(string mess)
@@ -72,20 +85,7 @@ namespace Server
                 await Clients.Caller.SendAsync("Loi", ex.Message);
             }
         }
-
-        public async Task TinNhanDienDan()
-        {
-            try
-            {
-                var list = Npg.TinNhanDienDan();
-                await Clients.Caller.SendAsync("TinNhanDienDan", list);
-            }
-            catch (Exception ex)
-            {
-                await Clients.Caller.SendAsync("Loi", ex.Message);
-            }
-        }
-
+        
         public async Task SoLuongTrucTuyen()
         {
             try
@@ -97,6 +97,20 @@ namespace Server
             {
                 await Clients.Caller.SendAsync("Loi", ex.Message);
             }
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            Console.WriteLine("User: " + Context.UserIdentifier);
+            await base.OnConnectedAsync();
+        }
+    }
+
+    public class CustomUserIdProvider : IUserIdProvider
+    {
+        public string GetUserId(HubConnectionContext connection)
+        {
+            return connection.GetHttpContext().Request.Query["username"];
         }
     }
 }
