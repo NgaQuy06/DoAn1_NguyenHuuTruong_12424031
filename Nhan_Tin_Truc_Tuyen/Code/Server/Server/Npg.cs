@@ -21,7 +21,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
+                string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -30,12 +30,9 @@ namespace Server
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        return "Ok";
+                        return reader["MaTK"].ToString();
                     }
-                    else
-                    {
-                        return "Sai tên tài khoản hoặc mật khẩu";
-                    }
+                    return null;
                 }
             }
             catch (NpgsqlException e)

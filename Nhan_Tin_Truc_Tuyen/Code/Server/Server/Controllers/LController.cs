@@ -18,13 +18,13 @@ namespace Server.Controllers
             try
             {
                 string result = Npg.DangNhap(req.Username, req.Password, req.Role);
-                if (result == "Ok")
+                if (result != null)
                 {
                     return Ok(new { message = "Đăng nhập thành công!" });
                 }
                 else
                 {
-                    return BadRequest(new { message = result });
+                    return BadRequest(new { message = "Đăng nhập thất bại!" });
                 }
             }
             catch (Exception e)
