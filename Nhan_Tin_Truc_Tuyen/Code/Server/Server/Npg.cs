@@ -175,7 +175,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt AND \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt, \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("t", username);
