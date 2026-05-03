@@ -33,7 +33,7 @@ namespace Server.Controllers
             }
         }
 
-        [HttpGet("DangKy")]
+        [HttpPost("DangKy")]
         public IActionResult DangKy([FromBody] RegisterRequest req)
         {
             try
