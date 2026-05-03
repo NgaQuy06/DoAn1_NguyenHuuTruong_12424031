@@ -20,11 +20,11 @@ namespace Server.Controllers
                 string result = Npg.DangNhap(req.Username, req.Password, req.Role);
                 if (result != null)
                 {
-                    return Ok(new { message = "Đăng nhập thành công!" });
+                    return Ok(new { message = result });
                 }
                 else
                 {
-                    return BadRequest(new { message = "Đăng nhập thất bại!" });
+                    return BadRequest(new { message = "" });
                 }
             }
             catch (Exception e)
