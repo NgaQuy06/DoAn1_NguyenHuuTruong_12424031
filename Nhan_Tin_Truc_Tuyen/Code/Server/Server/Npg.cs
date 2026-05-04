@@ -416,7 +416,7 @@ namespace Server
 
     public class TinNhanRieng
     {
-        public string tenCTC { get; set; }
+        public string TenCTC { get; set; }
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
