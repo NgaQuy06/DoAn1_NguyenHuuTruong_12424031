@@ -351,7 +351,7 @@ namespace Server
                         {
                             list.Add(new TinNhanRieng
                             {
-                                tenCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                TenCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
                                 TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
                                 NoiDung = reader.IsDBNull(2) ? "" : reader.GetString(2),
                                 NgayGui = reader.IsDBNull(3) ? DateTime.Now : reader.GetDateTime(3)
