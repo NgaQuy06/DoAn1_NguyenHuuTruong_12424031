@@ -43,6 +43,11 @@ namespace Server
 
         public static string DangKy(string username, string password, string email)
         {
+            if (KiemTraTenTK(username))
+            {
+                return "Tên tài khoản đã tồn tại!";
+            }
+
             NpgsqlConnection conn;
             try
             {
@@ -74,6 +79,32 @@ namespace Server
             catch (NpgsqlException e)
             {
                 return "Lỗi đăng ký: " + e.Message;
+            }
+        }
+
+        public static bool KiemTraTenTK(string username)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("u", username.Trim());
+                    var reader = cmd.ExecuteScalar();
+                    if (reader != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                Console.WriteLine("Lỗi kiểm tra tên tài khoản: " + e.Message);
+                return false;
             }
         }
 
@@ -154,7 +185,7 @@ namespace Server
             }
         }
 
-        public static void ChenTNRieng(string fromUser, string message)
+        public static void ChenTNRieng(string maTK, string tenTK, string maCTC, string message)
         {
             NpgsqlConnection conn;
             try
@@ -310,14 +341,21 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT ";
+                string sql = "SELECT ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"TinNhan\" tn JOIN public.\"CuocTroChuyen\" ctc ON tn.\"MaCTC\" = ctc.\"MaCTC\" WHERE tn.\"TenTK\" = @user ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
+                    cmd.Parameters.AddWithValue("user", user.Trim());
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-
+                            list.Add(new TinNhanRieng
+                            {
+                                tenCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                NoiDung = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                NgayGui = reader.IsDBNull(3) ? DateTime.Now : reader.GetDateTime(3)
+                            });
                         }
                     }
                 }
@@ -378,6 +416,9 @@ namespace Server
 
     public class TinNhanRieng
     {
-
+        public string tenCTC { get; set; }
+        public string TenTK { get; set; }
+        public string NoiDung { get; set; }
+        public DateTime NgayGui { get; set; }
     }
 }
