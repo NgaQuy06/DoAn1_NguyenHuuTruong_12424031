@@ -351,7 +351,7 @@ namespace Server
                         {
                             list.Add(new TinNhanRieng
                             {
-                                MaCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
                                 TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(2),
                                 TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
                                 NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
@@ -417,7 +417,7 @@ namespace Server
 
     public class TinNhanRieng
     {
-        public string MaCTC { get; set; }
+        public int MaCTC { get; set; }
         public string TenCTC { get; set; }
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
