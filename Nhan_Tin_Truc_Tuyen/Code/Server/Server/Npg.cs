@@ -341,7 +341,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"TinNhan\" tn JOIN public.\"CuocTroChuyen\" ctc ON tn.\"MaCTC\" = ctc.\"MaCTC\" WHERE tn.\"TenTK\" = @user ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
+                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"TinNhan\" tn JOIN public.\"CuocTroChuyen\" ctc ON tn.\"MaCTC\" = ctc.\"MaCTC\" WHERE tn.\"TenTK\" = @user ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("user", user.Trim());
@@ -351,10 +351,11 @@ namespace Server
                         {
                             list.Add(new TinNhanRieng
                             {
-                                TenCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
-                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                NoiDung = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                NgayGui = reader.IsDBNull(3) ? DateTime.Now : reader.GetDateTime(3)
+                                MaCTC = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(2),
+                                TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
                             });
                         }
                     }
@@ -416,6 +417,7 @@ namespace Server
 
     public class TinNhanRieng
     {
+        public string MaCTC { get; set; }
         public string TenCTC { get; set; }
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
