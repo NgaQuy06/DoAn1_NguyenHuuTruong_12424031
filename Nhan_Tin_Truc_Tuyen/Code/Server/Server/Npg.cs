@@ -357,8 +357,9 @@ namespace Server
                             {
                                 MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
                                 TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                NoiDung = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                NgayGui = reader.IsDBNull(3) ? DateTime.Now : reader.GetDateTime(3)
+                                TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
                             });
                         }
                     }
@@ -422,6 +423,7 @@ namespace Server
     {
         public int MaCTC { get; set; }
         public string TenCTC { get; set; }
+        public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
     }
