@@ -17,19 +17,19 @@ namespace Server.Controllers
         {
             try
             {
-                string result = Npg.DangNhap(req.Username, req.Password, req.Role);
+                var result = Npg.DangNhap(req.Username, req.Password, req.Role);
                 if (result != null)
                 {
-                    return Ok(new { message = result });
+                    return Ok(result);
                 }
                 else
                 {
-                    return BadRequest(new { message = "" });
+                    return BadRequest(null);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(e.Message);
             }
         }
 

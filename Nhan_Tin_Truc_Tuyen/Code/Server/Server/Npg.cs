@@ -14,14 +14,15 @@ namespace Server
                    "SSL Mode=Require;" +
                    "Trust Server Certificate=true;";
 
-        public static string DangNhap(string username, string password, string role)
+        public static ThongTinDN DangNhap(string username, string password, string role)
         {
+            ThongTinDN dn = new ThongTinDN();
             NpgsqlConnection conn;
             try
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
+                string sql = "SELECT \"MaTK\", \"Email\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -30,14 +31,17 @@ namespace Server
                     var reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        return reader["MaTK"].ToString();
+                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0);
+                        dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                        return dn;
                     }
                     return null;
                 }
             }
             catch (NpgsqlException e)
             {
-                return "Lỗi đăng nhập: " + e.Message;
+                Console.WriteLine("Lỗi đăng nhập: " + e.Message);
+                throw;
             }
         }
 
@@ -393,6 +397,12 @@ namespace Server
             }
             return 0;
         }
+    }
+
+    public class ThongTinDN
+    {
+        public int MaTK { get; set; }
+        public string Email { get; set; }
     }
 
     public class ThongTinBB
