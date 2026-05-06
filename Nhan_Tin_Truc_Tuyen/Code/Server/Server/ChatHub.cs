@@ -18,17 +18,16 @@ namespace Server
             }
         }
 
-        public async Task GuiTNRieng(string fromUser, string toUser, string mess)
+        public async Task GuiTNRieng(string maTK, string tenTK, string maCTC, string ngNhan, string mess)
         {
             try
             {
-                //Npg.ChenTinNhan(fromUser, mess);
-
+                Npg.ChenTNRieng(maTK, tenTK, maCTC, mess);
                 // gửi cho người nhận
-                await Clients.User(toUser).SendAsync("NhanTNRieng", fromUser, mess);
+                await Clients.User(ngNhan).SendAsync("NhanTNRieng", tenTK, mess);
 
                 // gửi lại cho chính mình (để hiển thị)
-                await Clients.Caller.SendAsync("NhanTNRieng", fromUser, mess);
+                await Clients.Caller.SendAsync("NhanTNRieng", tenTK, mess);
             }
             catch (Exception ex)
             {

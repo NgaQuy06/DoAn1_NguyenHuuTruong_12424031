@@ -194,7 +194,18 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("a", maTK);
+                    cmd.Parameters.AddWithValue("b", maCTC);
+                    cmd.Parameters.AddWithValue("c", message.Trim());
+                    cmd.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd.Parameters.AddWithValue("e", tenTK.Trim());
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (NpgsqlException ex)
             {
