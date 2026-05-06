@@ -356,11 +356,20 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" " +
-                             "FROM public.\"TinNhan\" tn JOIN public.\"CuocTroChuyen\" ctc " +
-                             "ON tn.\"MaCTC\" = ctc.\"MaCTC\" " +
-                             "WHERE tn.\"MaCTC\" IN (SELECT \"MaCTC\" FROM public.\"ThanhVienNhom\" WHERE \"TenTK\" = @user) " +
-                             "AND tn.\"MaCTC\" <> 0 ORDER BY tn.\"NgayGui\" ASC LIMIT 100";
+                string sql = "SELECT 
+    ctc."MaCTC",
+    ctc."TenCTC",
+    tn."TenTK",
+    tn."NoiDung",
+    tn."NgayGui"
+FROM public."CuocTroChuyen" ctc
+JOIN public."ThanhVienNhom" tvn 
+    ON ctc."MaCTC" = tvn."MaCTC"
+LEFT JOIN public."TinNhan" tn 
+    ON ctc."MaCTC" = tn."MaCTC"
+WHERE tvn."TenTK" = @user
+AND ctc."MaCTC" <> 0
+ORDER BY tn."NgayGui" ASC";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("user", user.Trim());
