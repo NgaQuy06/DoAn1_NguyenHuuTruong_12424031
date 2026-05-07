@@ -59,7 +59,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\") VALUES (@a, @b, @c, @d, @e, @f)";
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("a", username.Trim());
@@ -71,6 +71,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("d", "Đang ngoại tuyến");
                     cmd.Parameters.AddWithValue("e", "Người dùng mới");
                     cmd.Parameters.AddWithValue("f", DateTime.Now);
+                    cmd.Parameters.AddWithValue("g", "NguoiDung");
                     int reader = cmd.ExecuteNonQuery();
                     if (reader > 0)
                     {
