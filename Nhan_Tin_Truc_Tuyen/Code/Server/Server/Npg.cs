@@ -189,7 +189,7 @@ namespace Server
             }
         }
 
-        public static void ChenTNRieng(string maTK, string tenTK, string maCTC, string message)
+        public static void ChenTNRieng(int maTK, string ngGui, int maCTC, string mess)
         {
             NpgsqlConnection conn;
             try
@@ -201,9 +201,9 @@ namespace Server
                 {
                     cmd.Parameters.AddWithValue("a", maTK);
                     cmd.Parameters.AddWithValue("b", maCTC);
-                    cmd.Parameters.AddWithValue("c", message.Trim());
+                    cmd.Parameters.AddWithValue("c", mess.Trim());
                     cmd.Parameters.AddWithValue("d", DateTime.Now);
-                    cmd.Parameters.AddWithValue("e", tenTK.Trim());
+                    cmd.Parameters.AddWithValue("e", ngGui.Trim());
                     cmd.ExecuteNonQuery();
                 }
             }
