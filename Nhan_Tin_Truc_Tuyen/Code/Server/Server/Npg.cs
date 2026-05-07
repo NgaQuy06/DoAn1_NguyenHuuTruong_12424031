@@ -43,7 +43,7 @@ namespace Server
             catch (NpgsqlException e)
             {
                 Console.WriteLine("Lỗi đăng nhập: " + e.Message);
-                throw;
+                return null;
             }
         }
 
