@@ -28,11 +28,13 @@ namespace Server
                     cmd.Parameters.AddWithValue("u", username.Trim());
                     cmd.Parameters.AddWithValue("p", password.Trim());
                     cmd.Parameters.AddWithValue("r", role.Trim());
-                    var reader = cmd.ExecuteReader();
-                    if (reader.ToString() == "Đăng nhập thành công!")
+                    using var reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
                     {
-                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0);
+                        dn.MaTK = reader.IsDBNull(0) ? -1 : Convert.ToInt32(reader.GetInt64(0));
                         dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                        dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
                         return dn;
                     }
                     return null;
@@ -410,6 +412,7 @@ namespace Server
     {
         public int MaTK { get; set; }
         public string Email { get; set; }
+        public string BietDanh { get; set; }
     }
 
     public class ThongTinBB
