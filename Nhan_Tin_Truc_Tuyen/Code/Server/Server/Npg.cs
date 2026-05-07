@@ -22,14 +22,14 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"MaTK\", \"Email\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"MatKhau\" = @p AND \"QuyenHan\" = @r";
+                string sql = "select fun_dangnhaptaikhoan(@u, @p, @r)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
                     cmd.Parameters.AddWithValue("p", password.Trim());
                     cmd.Parameters.AddWithValue("r", role.Trim());
                     var reader = cmd.ExecuteReader();
-                    if (reader.Read())
+                    if (reader.ToString() == "Đăng nhập thành công!")
                     {
                         dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0);
                         dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
