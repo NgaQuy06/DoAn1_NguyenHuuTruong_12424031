@@ -24,12 +24,12 @@ namespace Server.Controllers
                 }
                 else
                 {
-                    return BadRequest(null);
+                    return BadRequest(new { message = "Đăng nhập thất bại!" });
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new { message = e.Message });
             }
         }
 
