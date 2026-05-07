@@ -24,10 +24,10 @@ namespace Server
             {
                 Npg.ChenTNRieng(maTK, ngGui, maCTC, mess);
                 // gửi cho người nhận
-                await Clients.User(ngNhan).SendAsync("NhanTNRieng", maCTC, ngGui, mess);
+                await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, NgGui = ngGui, NoiDung = mess });
 
                 // gửi lại cho chính mình (để hiển thị)
-                await Clients.Caller.SendAsync("NhanTNRieng", maCTC, ngGui, mess);
+                await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, NgGui = ngGui, NoiDung = mess });
             }
             catch (Exception ex)
             {
@@ -111,5 +111,12 @@ namespace Server
         {
             return connection.GetHttpContext().Request.Query["username"];
         }
+    }
+
+    public class TNRieng
+    {
+        public int MaCTC { get; set; }
+        public string NgGui { get; set; }
+        public string NoiDung { get; set; }
     }
 }
