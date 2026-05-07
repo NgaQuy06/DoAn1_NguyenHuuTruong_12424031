@@ -22,7 +22,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "select fun_dangnhaptaikhoan(@u, @p, @r)";
+                string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -32,7 +32,7 @@ namespace Server
 
                     if (reader.Read())
                     {
-                        dn.MaTK = reader.IsDBNull(0) ? -1 : Convert.ToInt32(reader.GetInt64(0));
+                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
                         dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
                         dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
                         return dn;
@@ -410,7 +410,7 @@ namespace Server
 
     public class ThongTinDN
     {
-        public int MaTK { get; set; }
+        public long MaTK { get; set; }
         public string Email { get; set; }
         public string BietDanh { get; set; }
     }
