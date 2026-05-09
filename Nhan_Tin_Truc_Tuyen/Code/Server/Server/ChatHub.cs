@@ -24,10 +24,10 @@ namespace Server
             {
                 Npg.ChenTNRieng(maTK, ngGui, maCTC, mess);
                 // gửi cho người nhận
-                await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
+                await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenCTC = "",TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
 
                 // gửi lại cho chính mình (để hiển thị)
-                await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
+                await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenCTC = "", TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
             }
             catch (Exception ex)
             {
@@ -116,6 +116,7 @@ namespace Server
     public class TNRieng
     {
         public int MaCTC { get; set; }
+        public string TenCTC { get; set; }
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
