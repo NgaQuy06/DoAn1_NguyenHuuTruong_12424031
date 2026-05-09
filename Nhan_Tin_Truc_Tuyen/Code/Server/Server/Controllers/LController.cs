@@ -24,7 +24,7 @@ namespace Server.Controllers
                 }
                 else
                 {
-                    return BadRequest(new { message = "Đăng nhập thất bại!" });
+                    return BadRequest("Đăng nhập thất bại!");
                 }
             }
             catch (Exception e)
@@ -41,15 +41,15 @@ namespace Server.Controllers
                 string result = Npg.DangKy(req.Username, req.Password, req.Email);
                 if (result == "Ok")
                 {
-                    return Ok(new { message = "Đăng ký thành công!" });
+                    return Ok("Đăng ký thành công!");
                 }
                 else if (result == "Tên tài khoản đã tồn tại!")
                 {
-                    return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
+                    return BadRequest("Tên tài khoản đã tồn tại!");
                 }
                 else
                 {
-                    return BadRequest(new { message = result });
+                    return BadRequest(result);
                 }
             }
             catch (Exception e)
