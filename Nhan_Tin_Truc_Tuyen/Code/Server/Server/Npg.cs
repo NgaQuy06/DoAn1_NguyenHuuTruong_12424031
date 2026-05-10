@@ -69,7 +69,7 @@ namespace Server
             catch (NpgsqlException e)
             {
                 Console.WriteLine("Lỗi kiểm tra trạng thái: " + e.Message);
-                return false;
+                throw;
             }
         }
 
