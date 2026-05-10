@@ -17,6 +17,11 @@ namespace Server.Controllers
         {
             try
             {
+                string siu = Npg.KiemTraTrangThai(req.Username);
+                if (siu == "Đang trực tuyến")
+                    return BadRequest("Tài khoản đang trực tuyến!");
+                else if (siu == "Đã bị khóa")
+                    return BadRequest("Tài khoản bị khóa!");
                 var result = Npg.DangNhap(req.Username, req.Password, req.Role);
                 if (result != null)
                 {
@@ -41,15 +46,15 @@ namespace Server.Controllers
                 string result = Npg.DangKy(req.Username, req.Password, req.Email);
                 if (result == "Ok")
                 {
-                    return Ok("Đăng ký thành công!");
+                    return Ok(new { message = "Đăng ký thành công!" });
                 }
                 else if (result == "Tên tài khoản đã tồn tại!")
                 {
-                    return BadRequest("Tên tài khoản đã tồn tại!");
+                    return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
                 }
                 else
                 {
-                    return BadRequest(result);
+                    return BadRequest(new { message = result });
                 }
             }
             catch (Exception e)

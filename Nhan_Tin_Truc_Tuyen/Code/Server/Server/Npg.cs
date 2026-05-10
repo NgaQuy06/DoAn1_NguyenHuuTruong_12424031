@@ -47,6 +47,32 @@ namespace Server
             }
         }
 
+        public static string KiemTraTrangThai(string tenTK)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    var reader = cmd.ExecuteScalar();
+                    if (reader != null)
+                    {
+                        return reader.ToString();
+                    }
+                    return "";
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                Console.WriteLine("Lỗi kiểm tra trạng thái: " + e.Message);
+                return false;
+            }
+        }
+
         public static string DangKy(string username, string password, string email)
         {
             if (KiemTraTenTK(username))
@@ -406,6 +432,26 @@ namespace Server
                 Console.WriteLine("Lỗi DB(số lượng trực tuyến): " + ex.Message);
             }
             return 0;
+        }
+
+        public static void CamTaiKhoan(string tenTK)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = 'Đã bị cấm' WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t", tenTK);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(cấm tài khoản): " + ex.Message);
+            }
         }
     }
 
