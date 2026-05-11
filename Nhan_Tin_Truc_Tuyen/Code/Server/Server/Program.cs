@@ -11,6 +11,18 @@ builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+app.UseCors("AllowAll");
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
