@@ -98,6 +98,32 @@ namespace Server
             }
         }
 
+        public async Task CamTaiKhoan(string tenTK)
+        {
+            try
+            {
+                Npg.CamTaiKhoan(tenTK);
+                await Clients.Caller.SendAsync("ThongBaoTuQTV", "Tài khoản đã bị cấm!");
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
+        public async Task TaoCTC(string tenCTC, string tenTK, List<string> ds)
+        {
+            try
+            {
+                Console.WriteLine(tenCTC + " " + tenTK + " " + string.Join(", ", ds));
+                //await Clients.Caller.SendAsync("ThemCTC", new ThemCTC { MaCTC = 0, TenCTC = tenCTC, TenTK = "" });
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine("User: " + Context.UserIdentifier);
@@ -120,5 +146,12 @@ namespace Server
         public string TenTK { get; set; }
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
+    }
+
+    public class ThemCTC
+    {
+        public int MaCTC { get; set; }
+        public string TenCTC { get; set; }
+        public string TenTK { get; set; }
     }
 }
