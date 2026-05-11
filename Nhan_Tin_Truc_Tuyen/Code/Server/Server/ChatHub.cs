@@ -115,8 +115,12 @@ namespace Server
         {
             try
             {
-                Console.WriteLine(tenCTC + " " + tenTK + " " + string.Join(", ", ds));
-                //await Clients.Caller.SendAsync("ThemCTC", new ThemCTC { MaCTC = 0, TenCTC = tenCTC, TenTK = "" });
+                int maCTC = Npg.TaoCTC(tenCTC);
+                if (maCTC != -1)
+                {
+                    Npg.ThemThanhVien(maCTC, ds);
+                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, ds);
+                }
             }
             catch (Exception ex)
             {
@@ -126,7 +130,7 @@ namespace Server
 
         public override async Task OnConnectedAsync()
         {
-            Console.WriteLine("User: " + Context.UserIdentifier);
+            Console.WriteLine("Ai đó đã kết nối đến máy chủ: " + Context.UserIdentifier);
             await base.OnConnectedAsync();
         }
     }

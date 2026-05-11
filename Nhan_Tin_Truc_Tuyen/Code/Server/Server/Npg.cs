@@ -453,6 +453,93 @@ namespace Server
                 Console.WriteLine("Lỗi DB(cấm tài khoản): " + ex.Message);
             }
         }
+
+        public static int TaoCTC(string tenCTC)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\") VALUES (@t, @n) RETURNING \"MaCTC\"";
+                using (var cmd1 = new NpgsqlCommand(sql1, conn))
+                {
+                    cmd1.Parameters.AddWithValue("t", "Cuộc trò chuyện mới");
+                    cmd1.Parameters.AddWithValue("n", DateTime.Now);
+                    var reader = cmd1.ExecuteScalar();
+                    if (reader != null)
+                    {
+                        return Convert.ToInt32(reader);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Không thể tạo cuộc trò chuyện mới");
+                        return -1;
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(tạo cuộc trò chuyện): " + ex.Message);
+            }
+            return -1;
+        }
+
+        public static void ThemThanhVien(int maCTC, List<string> ds)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                foreach (var tenTK in ds)
+                {
+                    string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("m", maCTC);
+                        cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
+                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                        cmd.Parameters.AddWithValue("n", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(thêm thành viên): " + ex.Message);
+            }
+        }
+
+        public static int LayMaTK(string tenTK)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    var reader = cmd.ExecuteScalar();
+                    if (reader != null)
+                    {
+                        return Convert.ToInt32(reader);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
+                        return -1;
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(lấy mã tài khoản): " + ex.Message);
+            }
+            return -1;
+        }
     }
 
     public class ThongTinDN
