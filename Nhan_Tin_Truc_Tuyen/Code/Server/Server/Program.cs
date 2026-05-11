@@ -21,7 +21,6 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod();
         });
 });
-app.UseCors("AllowAll");
 
 var app = builder.Build();
 
@@ -31,5 +30,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub"); // Client sẽ kết nối đến /chatHub
+
+app.UseCors("AllowAll");
 
 app.Run();
