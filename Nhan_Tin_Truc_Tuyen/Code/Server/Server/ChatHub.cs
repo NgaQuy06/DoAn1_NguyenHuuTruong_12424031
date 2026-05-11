@@ -22,6 +22,7 @@ namespace Server
         {
             try
             {
+                Console.WriteLine($"GuiTNRieng: maTK={maTK}, ngGui={ngGui}, maCTC={maCTC}, ngNhan={ngNhan}, mess={mess}");
                 Npg.ChenTNRieng(maTK, ngGui, maCTC, mess);
                 // gửi cho người nhận
                 await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenCTC = "",TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
