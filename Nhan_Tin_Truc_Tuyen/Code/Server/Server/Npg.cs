@@ -540,6 +540,53 @@ namespace Server
             }
             return -1;
         }
+
+        public static bool KiemTraKetBan(int maTK1, int maTK2)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "select * from public.\"BanBe\" where ((\"maTK1\" = @maTK1 AND \"maTK2\" = @maTK2) OR (\"maTK1\" = @maTK2 AND \"maTK2\" = @maTK1)) and TrangThai = 'Đang chờ'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK1", maTK1);
+                    cmd.Parameters.AddWithValue("maTK2", maTK2);
+                    var a = cmd.ExecuteScalar();
+                    if (a != null) return true;
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi DB(kiểm tra kết bạn): " + ex.Message);
+                throw;
+            }
+        }
+
+        public static void KetBan(int maTK1, int maTK2)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "INSERT INTO public.\"BanBe\" (\"TenTK1\", \"TenTK2\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t1", maTK1);
+                    cmd.Parameters.AddWithValue("t2", maTK2);
+                    cmd.Parameters.AddWithValue("t", "Đang chờ");
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(kết bạn): " + ex.Message);
+            }
+        }
     }
 
     public class ThongTinDN

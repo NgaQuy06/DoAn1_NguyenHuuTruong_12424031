@@ -129,6 +129,22 @@ namespace Server
             }
         }
 
+        public async Task GuiLoiMoiKetBan(string tenTK1, string tenTK2)
+        {
+            try
+            {
+                int maTK1 = Npg.LayMaTK(tenTK1);
+                int maTK2 = Npg.LayMaTK(tenTK2);
+                Npg.KetBan(maTK1, maTK2);
+                await Clients.User(tenTK2).SendAsync("NhanLoiMoiKetBan", tenTK1);
+                await Clients.Caller.SendAsync("GuiLoiMoiKetBan", "Đã gửi lời mời kết bạn đến " + tenTK2);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine("Ai đó đã kết nối đến máy chủ: " + Context.UserIdentifier);
