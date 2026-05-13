@@ -527,24 +527,21 @@ namespace Server
             }
         }
 
-        public static void ThemThanhVien(int maCTC, List<string> ds)
+        public static void ThemThanhVien(int maCTC, string tenTK)
         {
             NpgsqlConnection conn;
             try
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                foreach (var tenTK in ds)
+                string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("m", maCTC);
-                        cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
-                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                        cmd.Parameters.AddWithValue("n", DateTime.Now);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("m", maCTC);
+                    cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    cmd.ExecuteNonQuery();
                 }
             }
             catch (NpgsqlException ex)

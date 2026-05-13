@@ -112,15 +112,16 @@ namespace Server
             }
         }
 
-        public async Task TaoCTC(string tenCTC, string tenTK, List<string> ds)
+        public async Task TaoCTC(string tenCTC, string tenTK, string ngNhan)
         {
             try
             {
                 int maCTC = Npg.TaoCTC(tenCTC);
                 if (maCTC != -1)
                 {
-                    Npg.ThemThanhVien(maCTC, ds);
-                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, ds);
+                    Npg.ThemThanhVien(maCTC, ngNhan);
+                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, ngNhan);
+                    await Clients.User(ngNhan).SendAsync("ThemCTC", maCTC, tenCTC, tenTK);
                 }
             }
             catch (Exception ex)
