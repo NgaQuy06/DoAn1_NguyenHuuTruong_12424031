@@ -129,6 +129,32 @@ namespace Server
             }
         }
 
+        public async Task SuaCTC(int maCTC, string tenCTC, string tenTK)
+        {
+            try
+            {
+                Npg.SuaCTC(maCTC, tenCTC);
+                await Clients.Caller.SendAsync("ThongBaoCTC", "Sửa thành công!");
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
+        public async Task XoaCTC(int maCTC, string tenTK)
+        {
+            try
+            {
+                Npg.XoaCTC(maCTC);
+                await Clients.Caller.SendAsync("ThongBaoCTC", "Xóa thành công!");
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
         public async Task GuiLoiMoiKetBan(string tenTK1, string tenTK2)
         {
             try
@@ -145,10 +171,28 @@ namespace Server
             }
         }
 
+        public async Task TraLoiKetBan(string tl, string tenTK, string ngNhan)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
         public override async Task OnConnectedAsync()
         {
-            Console.WriteLine("Ai đó đã kết nối đến máy chủ: " + Context.UserIdentifier);
+            Console.WriteLine(Context.UserIdentifier + " đã kết nối đến máy chủ vào lúc " + DateTime.Now);
             await base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception? exception)
+        {
+            Console.WriteLine(Context.UserIdentifier + " đã rời khỏi máy chủ vào lúc " + DateTime.Now);
+            return base.OnDisconnectedAsync(exception);
         }
     }
 

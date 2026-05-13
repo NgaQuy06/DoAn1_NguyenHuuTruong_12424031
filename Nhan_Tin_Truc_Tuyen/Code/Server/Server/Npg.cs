@@ -385,7 +385,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 ORDER BY tn.\"NgayGui\" ASC";
+                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 AND ctc.\"TrangThai\" <> 'Đã bị xóa' ORDER BY tn.\"NgayGui\" ASC";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("user", user.Trim());
@@ -461,12 +461,13 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\") VALUES (@t, @n) RETURNING \"MaCTC\"";
-                using (var cmd1 = new NpgsqlCommand(sql1, conn))
+                string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
+                using (var cmd = new NpgsqlCommand(sql1, conn))
                 {
-                    cmd1.Parameters.AddWithValue("t", "Cuộc trò chuyện mới");
-                    cmd1.Parameters.AddWithValue("n", DateTime.Now);
-                    var reader = cmd1.ExecuteScalar();
+                    cmd.Parameters.AddWithValue("t", "Cuộc trò chuyện mới");
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    cmd.Parameters.AddWithValue("r", "Bình thường");
+                    var reader = cmd.ExecuteScalar();
                     if (reader != null)
                     {
                         return Convert.ToInt32(reader);
@@ -483,6 +484,47 @@ namespace Server
                 Console.WriteLine("Lỗi DB(tạo cuộc trò chuyện): " + ex.Message);
             }
             return -1;
+        }
+
+        public static void SuaCTC(int maCTC, string tenCTC)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "update public.\"CuocTroChuyen\" set \"TenCTC\" = @tenCTC where \"MaCTC\" = @maCTC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("tenCTC", tenCTC);
+                    cmd.Parameters.AddWithValue("maCTC", maCTC);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(sửa cuộc trò chuyện): " + ex.Message);
+            }
+        }
+
+        public static void XoaCTC(int maCTC)
+        {
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "update public.\"CuocTroChuyen\" set \"TrangThai\" = 'Đã bị xóa' where \"MaCTC\" = @maCTC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maCTC", maCTC);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(xóa cuộc trò chuyện): " + ex.Message);
+            }
         }
 
         public static void ThemThanhVien(int maCTC, List<string> ds)
