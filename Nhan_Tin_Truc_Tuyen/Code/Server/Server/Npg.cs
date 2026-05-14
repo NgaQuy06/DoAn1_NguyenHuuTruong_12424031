@@ -662,7 +662,7 @@ namespace Server
             return bb;
         }
 
-        public static List<string> LoiMoiKetBan(int maTK)
+        public static List<string> LayLoiMoiKetBan(int maTK)
         {
             var loiMoi = new List<string>();
             NpgsqlConnection conn;
