@@ -464,7 +464,7 @@ namespace Server
                 string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
                 using (var cmd = new NpgsqlCommand(sql1, conn))
                 {
-                    cmd.Parameters.AddWithValue("t", "Cuộc trò chuyện mới");
+                    cmd.Parameters.AddWithValue("t", tenCTC);
                     cmd.Parameters.AddWithValue("n", DateTime.Now);
                     cmd.Parameters.AddWithValue("r", "Bình thường");
                     var reader = cmd.ExecuteScalar();

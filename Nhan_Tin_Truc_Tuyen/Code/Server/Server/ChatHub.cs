@@ -18,17 +18,21 @@ namespace Server
             }
         }
 
-        public async Task GuiTNRieng(int maTK, string ngGui, int maCTC, string ngNhan, string mess)
+        public async Task GuiTNRieng(int maCTC, int maTK, string tenTK, List<string> dsNgNhan, string mess)
         {
             try
             {
-                Console.WriteLine($"GuiTNRieng: maTK={maTK}, ngGui={ngGui}, maCTC={maCTC}, ngNhan={ngNhan}, mess={mess}");
-                Npg.ChenTNRieng(maTK, ngGui, maCTC, mess);
+                Npg.ChenTNRieng(maTK, tenTK, maCTC, mess);
                 // gửi cho người nhận
-                await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenCTC = "",TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
+                foreach (string ngNhan in dsNgNhan.Distinct())
+                {
+                    if (ngNhan == tenTK)
+                        continue;
 
+                    await Clients.User(ngNhan).SendAsync("NhanTNRieng", maCTC);
+                }
                 // gửi lại cho chính mình (để hiển thị)
-                await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenCTC = "", TenTK = ngGui, NoiDung = mess, NgayGui = DateTime.Now } );
+                await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now } );
             }
             catch (Exception ex)
             {
@@ -119,6 +123,7 @@ namespace Server
                 int maCTC = Npg.TaoCTC(tenCTC);
                 if (maCTC != -1)
                 {
+                    Npg.ThemThanhVien(maCTC, tenTK);
                     Npg.ThemThanhVien(maCTC, ngNhan);
                     await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, ngNhan);
                     await Clients.User(ngNhan).SendAsync("ThemCTC", maCTC, tenCTC, tenTK);
