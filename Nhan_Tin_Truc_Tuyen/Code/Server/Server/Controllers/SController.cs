@@ -39,7 +39,7 @@ namespace Server.Controllers
                 var bb = Npg.LayThongTinBanBe(maTK);
                 if (bb != null)
                 {
-                    return Ok(new { bb });
+                    return Ok(bb);
                 }
                 return BadRequest(new { message = "Không tìm thấy thông tin bạn bè" });
             }
