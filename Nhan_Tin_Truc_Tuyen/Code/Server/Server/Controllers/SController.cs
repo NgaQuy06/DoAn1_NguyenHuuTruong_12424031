@@ -30,6 +30,24 @@ namespace Server.Controllers
         //        return BadRequest(new { message = e.Message });
         //    }
         //}
+
+        [HttpPost("thongtinbanbe")] // /api/s/thongtinbanbe
+        public IActionResult LayThongTinBanBe([FromBody] int maTK)
+        {
+            try
+            {
+                var bb = Npg.LayThongTinBanBe(maTK);
+                if (bb != null)
+                {
+                    return Ok(new { bb });
+                }
+                return BadRequest(new { message = "Không tìm thấy thông tin bạn bè" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
     }
     public class SearchRequest
     {

@@ -626,6 +626,41 @@ namespace Server
                 Console.WriteLine("Lỗi DB(kết bạn): " + ex.Message);
             }
         }
+
+        public static List<ThongTinBanBe> LayThongTinBanBe(int maTK)
+        {
+            var bb = new List<ThongTinBanBe>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = "SELECT tk.\"MaTK\", tk.\"TenTK\", tk.\"BietDanh\", bb.\"TrangThai\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON (bb.\"TenTK1\" = tk.\"MaTK\" OR bb.\"TenTK2\" = tk.\"MaTK\") WHERE (bb.\"TenTK1\" = @maTK OR bb.\"TenTK2\" = @maTK) AND bb.\"TrangThai\" = 'Đang chờ'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            bb.Add(new ThongTinBanBe
+                            {
+                                MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
+                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                            });
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(thông tin bạn bè): " + ex.Message);
+                throw;
+            }
+            return bb;
+        }
     }
 
     public class ThongTinDN
@@ -667,4 +702,12 @@ namespace Server
         public string NoiDung { get; set; }
         public DateTime NgayGui { get; set; }
     }
+
+    public class ThongTinBanBe
+    {
+        public int MaTK { get; set; }
+        public string TenTK { get; set; }
+        public string BietDanh { get; set; }
+        public string TrangThai { get; set; }
+    } 
 }
