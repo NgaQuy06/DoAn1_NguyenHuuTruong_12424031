@@ -31,8 +31,8 @@ namespace Server.Controllers
         //    }
         //}
 
-        [HttpPost("thongtinbanbe")] // /api/s/thongtinbanbe
-        public IActionResult LayThongTinBanBe([FromBody] int maTK)
+        [HttpGet("thongtinbanbe")] // /api/s/thongtinbanbe
+        public IActionResult LayThongTinBanBe([FromQuery] int maTK)
         {
             try
             {
