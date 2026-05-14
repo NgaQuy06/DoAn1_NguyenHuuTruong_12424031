@@ -661,6 +661,42 @@ namespace Server
             }
             return bb;
         }
+
+        public static List<string> LoiMoiKetBan(int maTK)
+        {
+            var loiMoi = new List<string>();
+            NpgsqlConnection conn;
+            try
+            {
+                conn = new NpgsqlConnection(str);
+                conn.Open();
+                string sql = @"SELECT tk.""TenTK"" FROM public.""BanBe"" bb
+                                        JOIN public.""TaiKhoan"" tk
+                                        ON (
+                                            (bb.""MaTK1"" = tk.""MaTK"" AND bb.""MaTK2"" = @maTK)
+                                            OR
+                                            (bb.""MaTK2"" = tk.""MaTK"" AND bb.""MaTK1"" = @maTK)
+                                        )
+                                        WHERE bb.""TrangThai"" = 'Đang chờ'
+                                        AND tk.""MaTK"" <> @maTK";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            loiMoi.Add(reader.GetString(0));
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(lời mời kết bạn): " + ex.Message);
+            }
+            return loiMoi;
+        }
     }
 
     public class ThongTinDN
