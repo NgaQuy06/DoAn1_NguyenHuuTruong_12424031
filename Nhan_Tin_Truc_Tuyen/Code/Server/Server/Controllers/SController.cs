@@ -45,7 +45,21 @@ namespace Server.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("loimoiketban")] // /api/s/loimoiketban
+        public IActionResult LayLoiMoiKetBan([FromQuery] int maTK)
+        {
+            try
+            {
+                var dsLoiMoi = Npg.LayLoiMoiKetBan(maTK);
+                return Ok(dsLoiMoi);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }
