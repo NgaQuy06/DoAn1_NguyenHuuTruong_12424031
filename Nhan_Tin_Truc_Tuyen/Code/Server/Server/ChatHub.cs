@@ -29,7 +29,7 @@ namespace Server
                     if (ngNhan == tenTK)
                         continue;
 
-                    await Clients.User(ngNhan).SendAsync("NhanTNRieng", maCTC);
+                    await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now });
                 }
                 // gửi lại cho chính mình (để hiển thị)
                 await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now } );
