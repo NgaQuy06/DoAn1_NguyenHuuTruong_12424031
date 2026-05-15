@@ -22,12 +22,12 @@ namespace Server
         public static async Task<ThongTinDN?> DangNhap(string username, string password, string role)
         {
             ThongTinDN dn = new ThongTinDN();
-
+            //string sql = "select 1 from fun_dangnhaptaikhoan(@u, @p, @r)";
             try
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "select 1 from fun_dangnhaptaikhoan(@u, @p, @r)";
+                string sql = "select \"MaTK\", \"Email\", \"BietDanh\" from public.\"TaiKhoan\" where \"TenTK\" = @u and \"MatKhau\" = @p and \"QuyenHan\" = @r";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
