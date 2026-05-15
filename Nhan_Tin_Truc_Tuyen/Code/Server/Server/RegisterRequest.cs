@@ -2,8 +2,10 @@
 {
     public class RegisterRequest
     {
-        public string Username { get; set; } = "";
-        public string Password { get; set; } = "";
+        public string TenTK { get; set; } = "";
+        public string MatKhau { get; set; } = "";
         public string Email { get; set; } = "";
+        public int Sdt { get; set; }
+        public string Captcha { get; set; } = "";
     }
 }
