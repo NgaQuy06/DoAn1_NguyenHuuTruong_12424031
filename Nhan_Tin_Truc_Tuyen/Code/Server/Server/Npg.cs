@@ -57,7 +57,7 @@ namespace Server
                 using (conn = new NpgsqlConnection(str))
                 {
                     conn.Open();
-                    string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                    string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t limit 1";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("t", tenTK.Trim());
@@ -144,7 +144,7 @@ namespace Server
                 using(conn = new NpgsqlConnection(str))
                 {
                     conn.Open();
-                    string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                    string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u limit 1";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("u", username.Trim());
@@ -173,7 +173,7 @@ namespace Server
                 using (conn = new NpgsqlConnection(str))
                 {
                     conn.Open();
-                    string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
+                    string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u limit 10";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
@@ -211,7 +211,7 @@ namespace Server
                     conn.Open();
 
                     int maTK = -1;
-                    string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                    string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u limit 1";
                     using (var cmd1 = new NpgsqlCommand(sql1, conn))
                     {
                         cmd1.Parameters.AddWithValue("u", username.Trim());
@@ -379,7 +379,7 @@ namespace Server
             }
             catch (NpgsqlException ex)
             {
-                Console.WriteLine("Lỗi DB(thông tin tài khoản): " + ex.Message);
+                Console.WriteLine("Lỗi DB(thông tin...): " + ex.Message);
                 throw;
             }
 
@@ -625,7 +625,7 @@ namespace Server
                 {
                     conn = new NpgsqlConnection(str);
                     conn.Open();
-                    string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                    string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t limit 1";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("t", tenTK.Trim());
@@ -658,11 +658,11 @@ namespace Server
                 {
                     conn = new NpgsqlConnection(str);
                     conn.Open();
-                    string sql = "select * from public.\"BanBe\" where ((\"maTK1\" = @maTK1 AND \"maTK2\" = @maTK2) OR (\"maTK1\" = @maTK2 AND \"maTK2\" = @maTK1)) and TrangThai = 'Đang chờ'";
+                    string sql = "select * from public.\"BanBe\" where  and TrangThai = 'Đang chờ'";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        cmd.Parameters.AddWithValue("maTK1", maTK1);
-                        cmd.Parameters.AddWithValue("maTK2", maTK2);
+                        cmd.Parameters.AddWithValue("", maTK1);
+                        cmd.Parameters.AddWithValue("", maTK2);
                         var a = cmd.ExecuteScalar();
                         if (a != null) return true;
                         return false;
@@ -676,7 +676,7 @@ namespace Server
             }
         }
 
-        public static void KetBan(int maTK1, int maTK2)
+        public static void KetBan(int maNgGui, int maNgNhan)
         {
             NpgsqlConnection conn;
             try
@@ -685,11 +685,11 @@ namespace Server
                 {
                     conn = new NpgsqlConnection(str);
                     conn.Open();
-                    string sql = "INSERT INTO public.\"BanBe\" (\"TenTK1\", \"TenTK2\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
+                    string sql = "INSERT INTO public.\"BanBe\" (\"MaNgGui\", \"MaNgNhan\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        cmd.Parameters.AddWithValue("t1", maTK1);
-                        cmd.Parameters.AddWithValue("t2", maTK2);
+                        cmd.Parameters.AddWithValue("t1", maNgGui);
+                        cmd.Parameters.AddWithValue("t2", maNgNhan);
                         cmd.Parameters.AddWithValue("t", "Đang chờ");
                         cmd.Parameters.AddWithValue("n", DateTime.Now);
                         cmd.ExecuteNonQuery();
