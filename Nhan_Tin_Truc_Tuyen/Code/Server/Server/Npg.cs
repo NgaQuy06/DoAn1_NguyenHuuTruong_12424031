@@ -670,7 +670,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "SELECT \"MaNgGui\" FROM public.\"BanBe\" WHERE \"MaNgNhan\" = @maTK AND \"TrangThai\" = 'Đang chờ'";
+                string sql = "SELECT tk.\"TenTK\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON bb.\"MaNgGuigNhan\" = tk.\"MaTK\" WHERE bb.\"MaNgNhan\" = @maTK AND bb.\"TrangThai\" = 'Đang chờ'";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("maTK", maTK);
