@@ -73,7 +73,7 @@ namespace Server
             }
         }
 
-        public static string DangKy(string username, string password, string email)
+        public static string DangKy(string username, string password, string email, int sdt, string capCha)
         {
             if (KiemTraTenTK(username))
             {
@@ -85,7 +85,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g)";
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("a", username.Trim());
@@ -94,10 +94,11 @@ namespace Server
                         cmd.Parameters.AddWithValue("c", DBNull.Value);
                     else
                         cmd.Parameters.AddWithValue("c", email.Trim());
-                    cmd.Parameters.AddWithValue("d", "Đang ngoại tuyến");
-                    cmd.Parameters.AddWithValue("e", "Người dùng mới");
-                    cmd.Parameters.AddWithValue("f", DateTime.Now);
-                    cmd.Parameters.AddWithValue("g", "NguoiDung");
+                    cmd.Parameters.AddWithValue("d", sdt);
+                    cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
+                    cmd.Parameters.AddWithValue("f", "Người dùng mới");
+                    cmd.Parameters.AddWithValue("g", DateTime.Now);
+                    cmd.Parameters.AddWithValue("h", "NguoiDung");
                     int reader = cmd.ExecuteNonQuery();
                     if (reader > 0)
                     {
@@ -113,6 +114,20 @@ namespace Server
             {
                 return "Lỗi đăng ký: " + e.Message;
             }
+        }
+
+        public static async Task<bool> XacMinhTaiKhoan(string token)
+        {
+            using var client = new HttpClient();
+            var values = new Dictionary<string, string>
+            {
+                { "secret", "6LfUTessAAAAAMXT8yNhWOABi-YeAnWi3LE6Jq7n" },
+                { "response", token }
+            };
+            var content = new FormUrlEncodedContent(values);
+            var response = await client.PostAsync("https://www.google.com/recaptcha/api/siteverify", content);
+            var json = await response.Content.ReadAsStringAsync();
+            return json.Contains("\"success\": true");
         }
 
         public static bool KiemTraTenTK(string username)
