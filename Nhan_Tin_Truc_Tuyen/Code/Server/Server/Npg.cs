@@ -627,7 +627,7 @@ namespace Server
             }
         }
 
-        public static List<ThongTinBanBe> LayThongTinBanBe(int maTK)
+        public static List<ThongTinBanBe> LayDanhSachBanBe(int maTK)
         {
             var bb = new List<ThongTinBanBe>();
             NpgsqlConnection conn;
@@ -670,15 +670,7 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = @"SELECT tk.""TenTK"" FROM public.""BanBe"" bb
-                                        JOIN public.""TaiKhoan"" tk
-                                        ON (
-                                            (bb.""MaTK1"" = tk.""MaTK"" AND bb.""MaTK2"" = @maTK)
-                                            OR
-                                            (bb.""MaTK2"" = tk.""MaTK"" AND bb.""MaTK1"" = @maTK)
-                                        )
-                                        WHERE bb.""TrangThai"" = 'Đang chờ'
-                                        AND tk.""MaTK"" <> @maTK";
+                string sql = "SELECT \"MaNgGui\" FROM public.\"BanBe\" WHERE \"MaNgNhan\" = @maTK AND \"TrangThai\" = 'Đang chờ'";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("maTK", maTK);
