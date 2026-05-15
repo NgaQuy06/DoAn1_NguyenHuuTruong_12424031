@@ -14,16 +14,16 @@ namespace Server.Controllers
         }
 
         [HttpPost("dangnhap")] // /api/l/dangnhap
-        public IActionResult DangNhap([FromBody] LoginRequest req)
+        public async Task<IActionResult> DangNhap([FromBody] LoginRequest req)
         {
             try
             {
-                string siu = Npg.KiemTraTrangThai(req.Username);
+                string siu = await Npg.KiemTraTrangThai(req.Username);
                 if (siu == "Đang trực tuyến")
                     return BadRequest("Tài khoản đang trực tuyến!");
                 else if (siu == "Đã bị khóa")
                     return BadRequest("Tài khoản bị khóa!");
-                var result = Npg.DangNhap(req.Username, req.Password, req.Role);
+                var result = await Npg.DangNhap(req.Username, req.Password, req.Role);
                 if (result != null)
                 {
                     return Ok(result);
@@ -53,14 +53,15 @@ namespace Server.Controllers
             }
             try
             {
-                string result = Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt);
+                if (await Npg.KiemTraTenTK(req.TenTK))
+                {
+                    return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
+                }
+
+                string result = await Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt);
                 if (result == "Ok")
                 {
                     return Ok(new { message = "Đăng ký thành công!" });
-                }
-                else if (result == "Tên tài khoản đã tồn tại!")
-                {
-                    return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
                 }
                 else
                 {

@@ -13,11 +13,11 @@ namespace Server.Controllers
         }
 
         [HttpGet("tinnhandiendan")] // /api/m/tinnhandiendan
-        public IActionResult TinNhanDienDan()
+        public async Task<IActionResult> TinNhanDienDan()
         {
             try
             {
-                var list = Npg.TinNhanDienDan();
+                var list = await Npg.TinNhanDienDan();
                 return Ok(list);
             }
             catch (Exception e)
@@ -27,11 +27,11 @@ namespace Server.Controllers
         }
 
         [HttpGet("tinnhanrieng")] // /api/m/tinnhanrieng
-        public IActionResult TinNhanRieng([FromQuery] string user)
+        public async Task<IActionResult> TinNhanRieng([FromQuery] string user)
         {
             try
             {
-                var list = Npg.TinNhanRieng(user);
+                var list = await Npg.TinNhanRieng(user);
                 return Ok(list);
             }
             catch (Exception ex)

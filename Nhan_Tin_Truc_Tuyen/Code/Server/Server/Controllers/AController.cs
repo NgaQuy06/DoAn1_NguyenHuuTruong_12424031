@@ -14,12 +14,12 @@ namespace Server.Controllers
         }
 
         [HttpGet("tongtktn")] // /api/a/tongtktn
-        public IActionResult TongTKTN()
+        public async Task<IActionResult> TongTKTN()
         {
             try
             {
-                int tk = int.Parse(Npg.TongTK());
-                int tn = int.Parse(Npg.TongTN());
+                int tk = int.Parse(await Npg.TongTK());
+                int tn = int.Parse(await Npg.TongTN());
                 return Ok(new { tk, tn });
             }
             catch (Exception ex)

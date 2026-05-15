@@ -9,7 +9,7 @@ namespace Server
         {
             try
             { 
-                Npg.ChenTNChung(user, mess);
+                await Npg.ChenTNChung(user, mess);
                 await Clients.All.SendAsync("NhanTNChung", user, mess); // Gửi cho tất cả Client, ReceiveMessage: Client phải đặt tên hàm như này để nhận dữ liệu
             }
             catch (Exception ex)
@@ -22,7 +22,7 @@ namespace Server
         {
             try
             {
-                Npg.ChenTNRieng(maTK, tenTK, maCTC, mess);
+                await Npg.ChenTNRieng(maTK, tenTK, maCTC, mess);
                 // gửi cho người nhận
                 foreach (string ngNhan in dsNgNhan.Distinct())
                 {
@@ -40,7 +40,7 @@ namespace Server
             }
         }
 
-        public async Task TrangThaiTK(string mess)
+        public async Task TrangThaiTK(string mess) // trạng thái tài khoản
         {
             await Clients.All.SendAsync("ThongBaoTK", mess);
         }
@@ -53,22 +53,26 @@ namespace Server
 
         public async Task DaThamGia(string username)
         {
-            Npg.CapNhatTrangThai(username, "Đang trực tuyến");
+            await Npg.CapNhatTrangThai(username, "Đang trực tuyến");
+            int sl = await Npg.SoLuongTrucTuyen();
             await Clients.All.SendAsync("ThongBaoTK", username + " đã trực tuyến!");
+            await Clients.All.SendAsync("SoLuongTrucTuyen", sl);
         }
 
         public async Task DaRoiKhoi(string username)
         {
-            Npg.CapNhatTrangThai(username, "Đang ngoại tuyến");
+            await Npg.CapNhatTrangThai(username, "Đang ngoại tuyến");
+            int sl = await Npg.SoLuongTrucTuyen();
             await Clients.All.SendAsync("ThongBaoTK", username + " đã ngoại tuyến!");
+            await Clients.All.SendAsync("SoLuongTrucTuyen", sl);
         }
 
         public async Task TongTKTN()
         {
             try
             {
-                int tk = int.Parse(Npg.TongTK());
-                int tn = int.Parse(Npg.TongTN());
+                int tk = int.Parse(await Npg.TongTK());
+                int tn = int.Parse(await Npg.TongTN());
                 await Clients.Caller.SendAsync("TongTKTN", tk, tn);
             }
             catch (Exception ex)
@@ -81,7 +85,7 @@ namespace Server
         {
             try
             {
-                var list = Npg.ThongTinTK();
+                var list = await Npg.ThongTinTK();
                 await Clients.Caller.SendAsync("ThongTinTK", list);
             }
             catch (Exception ex)
@@ -94,7 +98,7 @@ namespace Server
         {
             try
             {
-                int count = Npg.SoLuongTrucTuyen();
+                int count = await Npg.SoLuongTrucTuyen();
                 await Clients.Caller.SendAsync("SoLuongTrucTuyen", count);
             }
             catch (Exception ex)
@@ -107,7 +111,7 @@ namespace Server
         {
             try
             {
-                Npg.CamTaiKhoan(tenTK);
+                await Npg.CamTaiKhoan(tenTK);
                 await Clients.Caller.SendAsync("ThongBaoTuQTV", "Tài khoản đã bị cấm!");
             }
             catch (Exception ex)
@@ -116,17 +120,22 @@ namespace Server
             }
         }
 
-        public async Task TaoCTC(string tenCTC, string tenTK, string ngNhan)
+        public async Task TaoCTC(string tenCTC, string tenTK, List<string> dsNgNhan)
         {
             try
             {
-                int maCTC = Npg.TaoCTC(tenCTC);
+                int maCTC = await Npg.TaoCTC(tenCTC);
                 if (maCTC != -1)
                 {
-                    Npg.ThemThanhVien(maCTC, tenTK);
-                    Npg.ThemThanhVien(maCTC, ngNhan);
-                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, ngNhan);
-                    await Clients.User(ngNhan).SendAsync("ThemCTC", maCTC, tenCTC, tenTK);
+                    await Npg.ThemThanhVien(maCTC, tenTK);
+                    foreach (string ngNhan in dsNgNhan.Distinct())
+                    {
+
+                        await Npg.ThemThanhVien(maCTC, ngNhan);
+                        await Clients.User(ngNhan).SendAsync("ThemCTC", maCTC, tenCTC, dsNgNhan);
+                    }
+                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, dsNgNhan);
+                    await Clients.Caller.SendAsync("ThongBaoCTC", "Bạn đã được " + tenTK + "Tạo nhóm chat thành công!");
                 }
             }
             catch (Exception ex)
@@ -139,7 +148,7 @@ namespace Server
         {
             try
             {
-                Npg.SuaCTC(maCTC, tenCTC);
+                await Npg.SuaCTC(maCTC, tenCTC);
                 await Clients.Caller.SendAsync("ThongBaoCTC", "Sửa thành công!");
             }
             catch (Exception ex)
@@ -152,7 +161,7 @@ namespace Server
         {
             try
             {
-                Npg.XoaCTC(maCTC);
+                await Npg.XoaCTC(maCTC);
                 await Clients.Caller.SendAsync("ThongBaoCTC", "Xóa thành công!");
             }
             catch (Exception ex)
@@ -165,11 +174,11 @@ namespace Server
         {
             try
             {
-                int maTK1 = Npg.LayMaTK(tenTK1);
-                int maTK2 = Npg.LayMaTK(tenTK2);
-                Npg.KetBan(maTK1, maTK2);
+                int maTK1 = await Npg.LayMaTK(tenTK1);
+                int maTK2 = await Npg.LayMaTK(tenTK2);
+                await Npg.KetBan(maTK1, maTK2);
                 await Clients.User(tenTK2).SendAsync("NhanLoiMoiKetBan", tenTK1);
-                await Clients.Caller.SendAsync("GuiLoiMoiKetBan", "Đã gửi lời mời kết bạn đến " + tenTK2);
+                await Clients.Caller.SendAsync("ThongBaoKetBan", "Đã gửi lời mời kết bạn đến " + tenTK2);
             }
             catch (Exception ex)
             {

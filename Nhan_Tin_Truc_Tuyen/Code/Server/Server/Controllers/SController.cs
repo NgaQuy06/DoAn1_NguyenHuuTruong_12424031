@@ -32,11 +32,11 @@ namespace Server.Controllers
         //}
 
         [HttpGet("danhsachbanbe")] // /api/s/danhsachbanbe
-        public IActionResult LayDanhSachBanBe([FromQuery] int maTK)
+        public async Task<IActionResult> LayDanhSachBanBe([FromQuery] int maTK)
         {
             try
             {
-                var bb = Npg.LayDanhSachBanBe(maTK);
+                var bb = await Npg.LayDanhSachBanBe(maTK);
                 if (bb != null)
                 {
                     return Ok(bb);
@@ -50,11 +50,11 @@ namespace Server.Controllers
         }
 
         [HttpGet("loimoiketban")] // /api/s/loimoiketban
-        public IActionResult LayLoiMoiKetBan([FromQuery] int maTK)
+        public async Task<IActionResult> LayLoiMoiKetBan([FromQuery] int maTK)
         {
             try
             {
-                var dsLoiMoi = Npg.LayLoiMoiKetBan(maTK);
+                var dsLoiMoi = await Npg.LayLoiMoiKetBan(maTK);
                 return Ok(dsLoiMoi);
             }
             catch (Exception e)

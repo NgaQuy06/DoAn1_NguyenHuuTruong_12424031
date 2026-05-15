@@ -12,35 +12,39 @@ namespace Server
                    "Username=postgres.fauxrzhhtdiesxfxuftz;" +
                    "Password=Nguyentrg2006$;" +
                    "SSL Mode=Require;" +
-                   "Trust Server Certificate=true;";
+                   "Trust Server Certificate=true;" +
+                   "Pooling=true;" +
+                   "Minimum Pool Size=5;" +
+                   "Maximum Pool Size=100;" +
+                   "Timeout=15;" +
+                   "Command Timeout=30;";
 
-        public static ThongTinDN DangNhap(string username, string password, string role)
+        public static async Task<ThongTinDN?> DangNhap(string username, string password, string role)
         {
             ThongTinDN dn = new ThongTinDN();
-            NpgsqlConnection conn;
+
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("u", username.Trim());
-                        cmd.Parameters.AddWithValue("p", password.Trim());
-                        cmd.Parameters.AddWithValue("r", role.Trim());
-                        using var reader = cmd.ExecuteReader();
+                    cmd.Parameters.AddWithValue("u", username.Trim());
+                    cmd.Parameters.AddWithValue("p", password.Trim());
+                    cmd.Parameters.AddWithValue("r", role.Trim());
+                    using var reader = await cmd.ExecuteReaderAsync();
 
-                        if (reader.Read())
-                        {
-                            dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
-                            dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
-                            dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
-                            return dn;
-                        }
-                        return null;
+                    if (reader.Read())
+                    {
+                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
+                        dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                        dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
+                        return dn;
                     }
+                    return null;
                 }
+                
             }
             catch (NpgsqlException e)
             {
@@ -49,25 +53,22 @@ namespace Server
             }
         }
 
-        public static string KiemTraTrangThai(string tenTK)
+        public async static Task<string> KiemTraTrangThai(string tenTK)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t ";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t limit 1";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
                     {
-                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                        var reader = cmd.ExecuteScalar();
-                        if (reader != null)
-                        {
-                            return reader.ToString();
-                        }
-                        return "";
+                        return reader?.ToString() ?? "";
                     }
+                    return "";
                 }
             }
             catch (NpgsqlException e)
@@ -77,42 +78,34 @@ namespace Server
             }
         }
 
-        public static string DangKy(string TenTK, string MatKhau, string Email, int Sdt)
+        public async static Task<string> DangKy(string TenTK, string MatKhau, string Email, int Sdt)
         {
-            if (KiemTraTenTK(TenTK))
-            {
-                return "Tên tài khoản đã tồn tại!";
-            }
-
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("a", TenTK.Trim());
+                    cmd.Parameters.AddWithValue("b", MatKhau.Trim());
+                    if (string.IsNullOrWhiteSpace(Email))
+                        cmd.Parameters.AddWithValue("c", DBNull.Value);
+                    else
+                        cmd.Parameters.AddWithValue("c", Email.Trim());
+                    cmd.Parameters.AddWithValue("d", Sdt);
+                    cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
+                    cmd.Parameters.AddWithValue("f", "Người dùng mới");
+                    cmd.Parameters.AddWithValue("g", DateTime.Now);
+                    cmd.Parameters.AddWithValue("h", "NguoiDung");
+                    int reader = await cmd.ExecuteNonQueryAsync();
+                    if (reader > 0)
                     {
-                        cmd.Parameters.AddWithValue("a", TenTK.Trim());
-                        cmd.Parameters.AddWithValue("b", MatKhau.Trim());
-                        if (string.IsNullOrWhiteSpace(Email))
-                            cmd.Parameters.AddWithValue("c", DBNull.Value);
-                        else
-                            cmd.Parameters.AddWithValue("c", Email.Trim());
-                        cmd.Parameters.AddWithValue("d", Sdt);
-                        cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
-                        cmd.Parameters.AddWithValue("f", "Người dùng mới");
-                        cmd.Parameters.AddWithValue("g", DateTime.Now);
-                        cmd.Parameters.AddWithValue("h", "NguoiDung");
-                        int reader = cmd.ExecuteNonQuery();
-                        if (reader > 0)
-                        {
-                            return "Ok";
-                        }
-                        else
-                        {
-                            return "Đăng ký thất bại";
-                        }
+                        return "Ok";
+                    }
+                    else
+                    {
+                        return "Đăng ký thất bại";
                     }
                 }
             }
@@ -136,25 +129,22 @@ namespace Server
             return json.Contains("\"success\": true");
         }
 
-        public static bool KiemTraTenTK(string username)
+        public async static Task<bool> KiemTraTenTK(string username)
         {
-            NpgsqlConnection conn;
             try
             {
-                using(conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u ";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u limit 1";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("u", username.Trim());
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
                     {
-                        cmd.Parameters.AddWithValue("u", username.Trim());
-                        var reader = cmd.ExecuteScalar();
-                        if (reader != null)
-                        {
-                            return true;
-                        }
-                        return false;
+                        return true;
                     }
+                    return false;
                 }
             }
             catch (NpgsqlException e)
@@ -164,33 +154,31 @@ namespace Server
             }
         }
 
-        public static List<ThongTinBB> TimKiemBB(string username)
+        public async static Task<List<ThongTinBB>> TimKiemBB(string username)
         {
             var list = new List<ThongTinBB>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str); 
+                await conn.OpenAsync();
+                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u 0";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u limit 10";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            list.Add(new ThongTinBB
                             {
-                                list.Add(new ThongTinBB
-                                {
-                                    TenTK = reader["TenTK"].ToString(),
-                                    BietDanh = reader["BietDanh"].ToString(),
-                                    TrangThai = reader["TrangThai"].ToString()
-                                });
-                            }
+                                TenTK = reader["TenTK"].ToString(),
+                                BietDanh = reader["BietDanh"].ToString(),
+                                TrangThai = reader["TrangThai"].ToString()
+                            });
                         }
                     }
                 }
+                
             }
             catch (Exception ex)
             {
@@ -200,44 +188,40 @@ namespace Server
             return list;
         }
 
-        public static void ChenTNChung(string username, string message)
+        public async static Task ChenTNChung(string username, string message)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                int maTK = -1;
+                string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u ";
+                using (var cmd1 = new NpgsqlCommand(sql1, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-
-                    int maTK = -1;
-                    string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u limit 1";
-                    using (var cmd1 = new NpgsqlCommand(sql1, conn))
+                    cmd1.Parameters.AddWithValue("u", username.Trim());
+                    var reader = await cmd1.ExecuteScalarAsync();
+                    if (reader == null)
                     {
-                        cmd1.Parameters.AddWithValue("u", username.Trim());
-                        var reader = cmd1.ExecuteScalar();
-                        if (reader == null)
-                        {
-                            Console.WriteLine("Tài khoản không tồn tại: " + username);
-                            return;
-                        }
-                        else
-                        {
-                            maTK = Convert.ToInt32(reader);
-                        }
+                        Console.WriteLine("Tài khoản không tồn tại: " + username);
+                        return;
                     }
-
-                    string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
-                    using (var cmd2 = new NpgsqlCommand(sql2, conn))
+                    else
                     {
-                        cmd2.Parameters.AddWithValue("a", maTK);
-                        cmd2.Parameters.AddWithValue("b", 0);
-                        cmd2.Parameters.AddWithValue("c", message.Trim());
-                        cmd2.Parameters.AddWithValue("d", DateTime.Now);
-                        cmd2.Parameters.AddWithValue("e", username.Trim());
-                        cmd2.ExecuteNonQuery();
+                        maTK = Convert.ToInt32(reader);
                     }
                 }
+
+                string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
+                using (var cmd2 = new NpgsqlCommand(sql2, conn))
+                {
+                    cmd2.Parameters.AddWithValue("a", maTK);
+                    cmd2.Parameters.AddWithValue("b", 0);
+                    cmd2.Parameters.AddWithValue("c", message.Trim());
+                    cmd2.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd2.Parameters.AddWithValue("e", username.Trim());
+                    await cmd2.ExecuteNonQueryAsync();
+                }
+
             }
             catch (NpgsqlException ex)
             {
@@ -246,25 +230,21 @@ namespace Server
             }
         }
 
-        public static void ChenTNRieng(int maTK, string ngGui, int maCTC, string mess)
+        public async static Task ChenTNRieng(int maTK, string ngGui, int maCTC, string mess)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("a", maTK);
-                        cmd.Parameters.AddWithValue("b", maCTC);
-                        cmd.Parameters.AddWithValue("c", mess.Trim());
-                        cmd.Parameters.AddWithValue("d", DateTime.Now);
-                        cmd.Parameters.AddWithValue("e", ngGui.Trim());
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("a", maTK);
+                    cmd.Parameters.AddWithValue("b", maCTC);
+                    cmd.Parameters.AddWithValue("c", mess.Trim());
+                    cmd.Parameters.AddWithValue("d", DateTime.Now);
+                    cmd.Parameters.AddWithValue("e", ngGui.Trim());
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -274,22 +254,19 @@ namespace Server
             }
         }
 
-        public static void CapNhatTrangThai(string username, string trangThai)
+        public async static Task CapNhatTrangThai(string username, string trangThai)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt, \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn.Open();
-                    string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt, \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("t", username);
-                        cmd.Parameters.AddWithValue("tt", trangThai);
-                        cmd.Parameters.AddWithValue("tg", DateTime.Now);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("t", username);
+                    cmd.Parameters.AddWithValue("tt", trangThai);
+                    cmd.Parameters.AddWithValue("tg", DateTime.Now);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -298,22 +275,19 @@ namespace Server
             }
         }
 
-        public static string TongTK()
+        public async static Task<string> TongTK()
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\"";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        var reader = cmd.ExecuteScalar();
-                        return reader.ToString();
-                    }
+                    var reader = await cmd.ExecuteScalarAsync();
+                    return reader?.ToString() ?? "";
                 }
+
             }
             catch (NpgsqlException ex)
             {
@@ -322,21 +296,17 @@ namespace Server
             return "1";
         }
 
-        public static string TongTN()
+        public async static Task<string> TongTN()
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT COUNT(*) FROM public.\"TinNhan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT COUNT(*) FROM public.\"TinNhan\"";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        var reader = cmd.ExecuteScalar();
-                        return reader.ToString();
-                    }
+                    var reader = await cmd.ExecuteScalarAsync();
+                    return reader?.ToString() ?? "0";
                 }
             }
             catch (NpgsqlException ex)
@@ -346,33 +316,29 @@ namespace Server
             return "1";
         }
 
-        public static List<ThongTinTK> ThongTinTK()
+        public async static Task<List<ThongTinTK>> ThongTinTK()
         {
             var list = new List<ThongTinTK>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT \"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\" FROM public.\"TaiKhoan\"";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT \"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\" FROM public.\"TaiKhoan\"";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            list.Add(new ThongTinTK
                             {
-                                list.Add(new ThongTinTK
-                                {
-                                    TenTK = reader.GetString(0),
-                                    MatKhau = reader.GetString(1),
-                                    Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-                                    TrangThai = reader.GetString(3),
-                                    BietDanh = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                    NgayTao = reader.GetDateTime(5)
-                                });
-                            }
+                                TenTK = reader.GetString(0),
+                                MatKhau = reader.GetString(1),
+                                Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                TrangThai = reader.GetString(3),
+                                BietDanh = reader.IsDBNull(4) ? null : reader.GetString(4),
+                                NgayTao = reader.GetDateTime(5)
+                            });
                         }
                     }
                 }
@@ -386,30 +352,26 @@ namespace Server
             return list;
         }
 
-        public static List<TinNhanDienDan> TinNhanDienDan()
+        public async static Task<List<TinNhanDienDan>> TinNhanDienDan()
         {
             var list = new List<TinNhanDienDan>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\", tk.\"BietDanh\" FROM public.\"TinNhan\" tn JOIN public.\"TaiKhoan\" tk ON tn.\"TenTK\" = tk.\"TenTK\" WHERE tn.\"MaCTC\" = 0 ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\", tk.\"BietDanh\" FROM public.\"TinNhan\" tn JOIN public.\"TaiKhoan\" tk ON tn.\"TenTK\" = tk.\"TenTK\" WHERE tn.\"MaCTC\" = 0 ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            list.Add(new TinNhanDienDan
                             {
-                                list.Add(new TinNhanDienDan
-                                {
-                                    TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
-                                    NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                    NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
-                                });
-                            }
+                                TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
+                            });
                         }
                     }
                 }
@@ -422,33 +384,29 @@ namespace Server
             return list;
         }
 
-        public static List<TinNhanRieng> TinNhanRieng(string user)
+        public async static Task<List<TinNhanRieng>> TinNhanRieng(string user)
         {
             var list = new List<TinNhanRieng>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 AND ctc.\"TrangThai\" <> 'Đã bị xóa' ORDER BY tn.\"NgayGui\" ASC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 AND ctc.\"TrangThai\" <> 'Đã bị xóa' ORDER BY tn.\"NgayGui\" ASC";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("user", user.Trim());
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        cmd.Parameters.AddWithValue("user", user.Trim());
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            list.Add(new TinNhanRieng
                             {
-                                list.Add(new TinNhanRieng
-                                {
-                                    MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
-                                    TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                    TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                    NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
-                                    NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
-                                });
-                            }
+                                MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
+                                TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
+                            });
                         }
                     }
                 }
@@ -461,22 +419,19 @@ namespace Server
             return list;
         }
 
-        public static int SoLuongTrucTuyen()
+        public async static Task<int> SoLuongTrucTuyen()
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\" WHERE \"TrangThai\" = 'Đang trực tuyến'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\" WHERE \"TrangThai\" = 'Đang trực tuyến'";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        var reader = cmd.ExecuteScalar();
-                        return Convert.ToInt32(reader);
-                    }
+                    var reader = await cmd.ExecuteScalarAsync();
+                    return Convert.ToInt32(reader);
                 }
+
             }
             catch (NpgsqlException ex)
             {
@@ -485,21 +440,17 @@ namespace Server
             return 0;
         }
 
-        public static void CamTaiKhoan(string tenTK)
+        public async static Task CamTaiKhoan(string tenTK)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = 'Đã bị cấm' WHERE \"TenTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = 'Đã bị cấm' WHERE \"TenTK\" = @t";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("t", tenTK);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("t", tenTK);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -508,31 +459,27 @@ namespace Server
             }
         }
 
-        public static int TaoCTC(string tenCTC)
+        public async static Task<int> TaoCTC(string tenCTC)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
+                using (var cmd = new NpgsqlCommand(sql1, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
-                    using (var cmd = new NpgsqlCommand(sql1, conn))
+                    cmd.Parameters.AddWithValue("t", tenCTC);
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    cmd.Parameters.AddWithValue("r", "Bình thường");
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
                     {
-                        cmd.Parameters.AddWithValue("t", tenCTC);
-                        cmd.Parameters.AddWithValue("n", DateTime.Now);
-                        cmd.Parameters.AddWithValue("r", "Bình thường");
-                        var reader = cmd.ExecuteScalar();
-                        if (reader != null)
-                        {
-                            return Convert.ToInt32(reader);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Không thể tạo cuộc trò chuyện mới");
-                            return -1;
-                        }
+                        return Convert.ToInt32(reader);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Không thể tạo cuộc trò chuyện mới");
+                        return -1;
                     }
                 }
             }
@@ -543,22 +490,18 @@ namespace Server
             return -1;
         }
 
-        public static void SuaCTC(int maCTC, string tenCTC)
+        public async static Task SuaCTC(int maCTC, string tenCTC)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "update public.\"CuocTroChuyen\" set \"TenCTC\" = @tenCTC where \"MaCTC\" = @maCTC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "update public.\"CuocTroChuyen\" set \"TenCTC\" = @tenCTC where \"MaCTC\" = @maCTC";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("tenCTC", tenCTC);
-                        cmd.Parameters.AddWithValue("maCTC", maCTC);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("tenCTC", tenCTC);
+                    cmd.Parameters.AddWithValue("maCTC", maCTC);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -567,21 +510,18 @@ namespace Server
             }
         }
 
-        public static void XoaCTC(int maCTC)
+        public async static Task XoaCTC(int maCTC)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+
+                await conn.OpenAsync();
+                string sql = "update public.\"CuocTroChuyen\" set \"TrangThai\" = 'Đã bị xóa' where \"MaCTC\" = @maCTC";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "update public.\"CuocTroChuyen\" set \"TrangThai\" = 'Đã bị xóa' where \"MaCTC\" = @maCTC";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("maCTC", maCTC);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("maCTC", maCTC);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -590,24 +530,20 @@ namespace Server
             }
         }
 
-        public static void ThemThanhVien(int maCTC, string tenTK)
+        public async static Task ThemThanhVien(int maCTC, string tenTK)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("m", maCTC);
-                        cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
-                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                        cmd.Parameters.AddWithValue("n", DateTime.Now);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("m", maCTC);
+                    cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -616,29 +552,25 @@ namespace Server
             }
         }
 
-        public static int LayMaTK(string tenTK)
+        public async static Task<int> LayMaTK(string tenTK)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t ";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t limit 1";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
                     {
-                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                        var reader = cmd.ExecuteScalar();
-                        if (reader != null)
-                        {
-                            return Convert.ToInt32(reader);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
-                            return -1;
-                        }
+                        return Convert.ToInt32(reader);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
+                        return -1;
                     }
                 }
             }
@@ -649,24 +581,20 @@ namespace Server
             return -1;
         }
 
-        public static bool KiemTraKetBan(int maTK1, int maTK2)
+        public async static Task<bool> KiemTraKetBan(int maTK1, int maTK2)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "select * from public.\"BanBe\" where  and TrangThai = 'Đang chờ'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "select * from public.\"BanBe\" where  and TrangThai = 'Đang chờ'";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("", maTK1);
-                        cmd.Parameters.AddWithValue("", maTK2);
-                        var a = cmd.ExecuteScalar();
-                        if (a != null) return true;
-                        return false;
-                    }
+                    cmd.Parameters.AddWithValue("", maTK1);
+                    cmd.Parameters.AddWithValue("", maTK2);
+                    var a = await cmd.ExecuteScalarAsync();
+                    if (a != null) return true;
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -676,24 +604,20 @@ namespace Server
             }
         }
 
-        public static void KetBan(int maNgGui, int maNgNhan)
+        public async static Task KetBan(int maNgGui, int maNgNhan)
         {
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "INSERT INTO public.\"BanBe\" (\"MaNgGui\", \"MaNgNhan\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "INSERT INTO public.\"BanBe\" (\"MaNgGui\", \"MaNgNhan\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("t1", maNgGui);
-                        cmd.Parameters.AddWithValue("t2", maNgNhan);
-                        cmd.Parameters.AddWithValue("t", "Đang chờ");
-                        cmd.Parameters.AddWithValue("n", DateTime.Now);
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("t1", maNgGui);
+                    cmd.Parameters.AddWithValue("t2", maNgNhan);
+                    cmd.Parameters.AddWithValue("t", "Đang chờ");
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (NpgsqlException ex)
@@ -702,36 +626,32 @@ namespace Server
             }
         }
 
-        public static List<ThongTinBanBe> LayDanhSachBanBe(int maTK)
+        public async static Task<List<ThongTinBanBe>> LayDanhSachBanBe(int maTK)
         {
             var bb = new List<ThongTinBanBe>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
-                {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
                                  FROM public.""BanBe"" bb JOIN public.""TaiKhoan"" tk
                                  ON ((bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"") OR
                                      (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK""))
                                  WHERE bb.""TrangThai"" = 'Kết bạn thành công'";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        cmd.Parameters.AddWithValue("maTK", maTK);
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            bb.Add(new ThongTinBanBe
                             {
-                                bb.Add(new ThongTinBanBe
-                                {
-                                    MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
-                                    TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                    BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                    TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
-                                });
-                            }
+                                MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
+                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                            });
                         }
                     }
                 }
@@ -744,26 +664,22 @@ namespace Server
             return bb;
         }
 
-        public static List<string> LayLoiMoiKetBan(int maTK)
+        public async static Task<List<string>> LayLoiMoiKetBan(int maTK)
         {
             var loiMoi = new List<string>();
-            NpgsqlConnection conn;
             try
             {
-                using (conn = new NpgsqlConnection(str))
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT tk.\"TenTK\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON bb.\"MaNgGui\" = tk.\"MaTK\" WHERE bb.\"MaNgNhan\" = @maTK AND bb.\"TrangThai\" = 'Đang chờ'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    conn = new NpgsqlConnection(str);
-                    conn.Open();
-                    string sql = "SELECT tk.\"TenTK\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON bb.\"MaNgGui\" = tk.\"MaTK\" WHERE bb.\"MaNgNhan\" = @maTK AND bb.\"TrangThai\" = 'Đang chờ'";
-                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        cmd.Parameters.AddWithValue("maTK", maTK);
-                        using (var reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                loiMoi.Add(reader.GetString(0));
-                            }
+                            loiMoi.Add(reader.GetString(0));
                         }
                     }
                 }
