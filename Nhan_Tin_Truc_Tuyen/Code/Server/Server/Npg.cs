@@ -15,7 +15,7 @@ namespace Server
                    "Trust Server Certificate=true;" +
                    "Pooling=true;" +
                    "Minimum Pool Size=5;" +
-                   "Maximum Pool Size=100;" +
+                   "Maximum Pool Size=50;" +
                    "Timeout=15;" +
                    "Command Timeout=30;";
 
@@ -27,7 +27,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
+                string sql = "select 1 from fun_dangnhaptaikhoan(@u, @p, @r)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -35,7 +35,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("r", role.Trim());
                     using var reader = await cmd.ExecuteReaderAsync();
 
-                    if (reader.Read())
+                    if (await reader.ReadAsync())
                     {
                         dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
                         dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
@@ -135,7 +135,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u ";
+                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u ";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -161,13 +161,13 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str); 
                 await conn.OpenAsync();
-                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u 0";
+                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             list.Add(new ThongTinBB
                             {
@@ -328,7 +328,7 @@ namespace Server
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             list.Add(new ThongTinTK
                             {
@@ -364,7 +364,7 @@ namespace Server
                 {
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             list.Add(new TinNhanDienDan
                             {
@@ -397,7 +397,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("user", user.Trim());
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             list.Add(new TinNhanRieng
                             {
@@ -540,7 +540,7 @@ namespace Server
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("m", maCTC);
-                    cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
+                    cmd.Parameters.AddWithValue("ma", await LayMaTK(tenTK));
                     cmd.Parameters.AddWithValue("t", tenTK.Trim());
                     cmd.Parameters.AddWithValue("n", DateTime.Now);
                     await cmd.ExecuteNonQueryAsync();
@@ -587,11 +587,11 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "select * from public.\"BanBe\" where  and TrangThai = 'Đang chờ'";
+                string sql = "select 1 from public.\"BanBe\" where ((\"MaNgGui\" = @m1 AND \"MaNgNhan\" = @m2) OR (\"MaNgGui\" = @m2 AND \"MaNgNhan\" = @m1)) AND \"TrangThai\" = 'Đang chờ' LIMIT 1;";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("", maTK1);
-                    cmd.Parameters.AddWithValue("", maTK2);
+                    cmd.Parameters.AddWithValue("m1", maTK1);
+                    cmd.Parameters.AddWithValue("m2", maTK2);
                     var a = await cmd.ExecuteScalarAsync();
                     if (a != null) return true;
                     return false;
@@ -643,7 +643,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("maTK", maTK);
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             bb.Add(new ThongTinBanBe
                             {
@@ -677,7 +677,7 @@ namespace Server
                     cmd.Parameters.AddWithValue("maTK", maTK);
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             loiMoi.Add(reader.GetString(0));
                         }
