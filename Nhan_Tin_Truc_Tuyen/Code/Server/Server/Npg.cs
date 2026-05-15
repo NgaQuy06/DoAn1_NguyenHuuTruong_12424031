@@ -42,7 +42,7 @@ namespace Server
             }
             catch (NpgsqlException e)
             {
-                Console.WriteLine("Lỗi đăng nhập: " + e.Message);
+                Console.WriteLine("Lỗi DB(đăng nhập): " + e.Message);
                 return null;
             }
         }
@@ -68,7 +68,7 @@ namespace Server
             }
             catch (NpgsqlException e)
             {
-                Console.WriteLine("Lỗi kiểm tra trạng thái: " + e.Message);
+                Console.WriteLine("Lỗi DB(kiểm tra trạng thái): " + e.Message);
                 throw;
             }
         }
@@ -635,16 +635,16 @@ namespace Server
             {
                 conn = new NpgsqlConnection(str);
                 conn.Open();
-                string sql = @"
-SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
-FROM public.""BanBe"" bb
-JOIN public.""TaiKhoan"" tk
-ON (
-    (bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"")
-    OR
-    (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK"")
-)
-WHERE bb.""TrangThai"" = 'Kết bạn thành công'"; using (var cmd = new NpgsqlCommand(sql, conn))
+                string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
+                            FROM public.""BanBe"" bb
+                            JOIN public.""TaiKhoan"" tk
+                            ON (
+                                (bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"")
+                                OR
+                                (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK"")
+                            )
+                            WHERE bb.""TrangThai"" = 'Kết bạn thành công'"; 
+                using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("maTK", maTK);
                     using (var reader = cmd.ExecuteReader())

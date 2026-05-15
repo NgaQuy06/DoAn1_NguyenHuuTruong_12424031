@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace Server.Controllers
 {
@@ -39,11 +40,20 @@ namespace Server.Controllers
         }
 
         [HttpPost("DangKy")]
-        public IActionResult DangKy([FromBody] RegisterRequest req)
+        public async Task<IActionResult> DangKy([FromBody] RegisterRequest req)
         {
+            bool ok = await Npg.XacMinhTaiKhoan(req.Captcha);
+
+            if (!ok)
+            {
+                return BadRequest(new
+                {
+                    message = "CAPTCHA không hợp lệ!"
+                });
+            }
             try
             {
-                string result = Npg.DangKy(req.Username, req.Password, req.Email);
+                string result = Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt, req.Captcha);
                 if (result == "Ok")
                 {
                     return Ok(new { message = "Đăng ký thành công!" });
