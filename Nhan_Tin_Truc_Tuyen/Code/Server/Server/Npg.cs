@@ -20,24 +20,26 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("u", username.Trim());
-                    cmd.Parameters.AddWithValue("p", password.Trim());
-                    cmd.Parameters.AddWithValue("r", role.Trim());
-                    using var reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
+                    conn.Open();
+                    string sql = "select * from fun_dangnhaptaikhoan(@u, @p, @r)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
-                        dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
-                        dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
-                        return dn;
+                        cmd.Parameters.AddWithValue("u", username.Trim());
+                        cmd.Parameters.AddWithValue("p", password.Trim());
+                        cmd.Parameters.AddWithValue("r", role.Trim());
+                        using var reader = cmd.ExecuteReader();
+
+                        if (reader.Read())
+                        {
+                            dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
+                            dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                            dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
+                            return dn;
+                        }
+                        return null;
                     }
-                    return null;
                 }
             }
             catch (NpgsqlException e)
@@ -52,18 +54,20 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                    var reader = cmd.ExecuteScalar();
-                    if (reader != null)
+                    conn.Open();
+                    string sql = "SELECT \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return reader.ToString();
+                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                        var reader = cmd.ExecuteScalar();
+                        if (reader != null)
+                        {
+                            return reader.ToString();
+                        }
+                        return "";
                     }
-                    return "";
                 }
             }
             catch (NpgsqlException e)
@@ -83,30 +87,32 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("a", TenTK.Trim());
-                    cmd.Parameters.AddWithValue("b", MatKhau.Trim());
-                    if (string.IsNullOrWhiteSpace(Email))
-                        cmd.Parameters.AddWithValue("c", DBNull.Value);
-                    else
-                        cmd.Parameters.AddWithValue("c", Email.Trim());
-                    cmd.Parameters.AddWithValue("d", Sdt);
-                    cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
-                    cmd.Parameters.AddWithValue("f", "Người dùng mới");
-                    cmd.Parameters.AddWithValue("g", DateTime.Now);
-                    cmd.Parameters.AddWithValue("h", "NguoiDung");
-                    int reader = cmd.ExecuteNonQuery();
-                    if (reader > 0)
+                    conn.Open();
+                    string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return "Ok";
-                    }
-                    else
-                    {
-                        return "Đăng ký thất bại";
+                        cmd.Parameters.AddWithValue("a", TenTK.Trim());
+                        cmd.Parameters.AddWithValue("b", MatKhau.Trim());
+                        if (string.IsNullOrWhiteSpace(Email))
+                            cmd.Parameters.AddWithValue("c", DBNull.Value);
+                        else
+                            cmd.Parameters.AddWithValue("c", Email.Trim());
+                        cmd.Parameters.AddWithValue("d", Sdt);
+                        cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
+                        cmd.Parameters.AddWithValue("f", "Người dùng mới");
+                        cmd.Parameters.AddWithValue("g", DateTime.Now);
+                        cmd.Parameters.AddWithValue("h", "NguoiDung");
+                        int reader = cmd.ExecuteNonQuery();
+                        if (reader > 0)
+                        {
+                            return "Ok";
+                        }
+                        else
+                        {
+                            return "Đăng ký thất bại";
+                        }
                     }
                 }
             }
@@ -135,18 +141,20 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using(conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("u", username.Trim());
-                    var reader = cmd.ExecuteScalar();
-                    if (reader != null)
+                    conn.Open();
+                    string sql = "SELECT * FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return true;
+                        cmd.Parameters.AddWithValue("u", username.Trim());
+                        var reader = cmd.ExecuteScalar();
+                        if (reader != null)
+                        {
+                            return true;
+                        }
+                        return false;
                     }
-                    return false;
                 }
             }
             catch (NpgsqlException e)
@@ -162,22 +170,24 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
-                    using (var reader = cmd.ExecuteReader())
+                    conn.Open();
+                    string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            list.Add(new ThongTinBB
+                            while (reader.Read())
                             {
-                                TenTK = reader["TenTK"].ToString(),
-                                BietDanh = reader["BietDanh"].ToString(),
-                                TrangThai = reader["TrangThai"].ToString()
-                            });
+                                list.Add(new ThongTinBB
+                                {
+                                    TenTK = reader["TenTK"].ToString(),
+                                    BietDanh = reader["BietDanh"].ToString(),
+                                    TrangThai = reader["TrangThai"].ToString()
+                                });
+                            }
                         }
                     }
                 }
@@ -195,35 +205,38 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-
-                int maTK = -1;
-                string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
-                using (var cmd1 = new NpgsqlCommand(sql1, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd1.Parameters.AddWithValue("u", username.Trim());
-                    var reader = cmd1.ExecuteScalar();
-                    if (reader == null)
-                    {
-                        Console.WriteLine("Tài khoản không tồn tại: " + username);
-                        return;
-                    }
-                    else
-                    {
-                        maTK = Convert.ToInt32(reader);
-                    }
-                }
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
 
-                string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
-                using (var cmd2 = new NpgsqlCommand(sql2, conn))
-                {
-                    cmd2.Parameters.AddWithValue("a", maTK);
-                    cmd2.Parameters.AddWithValue("b", 0);
-                    cmd2.Parameters.AddWithValue("c", message.Trim());
-                    cmd2.Parameters.AddWithValue("d", DateTime.Now);
-                    cmd2.Parameters.AddWithValue("e", username.Trim());
-                    cmd2.ExecuteNonQuery();
+                    int maTK = -1;
+                    string sql1 = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u";
+                    using (var cmd1 = new NpgsqlCommand(sql1, conn))
+                    {
+                        cmd1.Parameters.AddWithValue("u", username.Trim());
+                        var reader = cmd1.ExecuteScalar();
+                        if (reader == null)
+                        {
+                            Console.WriteLine("Tài khoản không tồn tại: " + username);
+                            return;
+                        }
+                        else
+                        {
+                            maTK = Convert.ToInt32(reader);
+                        }
+                    }
+
+                    string sql2 = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
+                    using (var cmd2 = new NpgsqlCommand(sql2, conn))
+                    {
+                        cmd2.Parameters.AddWithValue("a", maTK);
+                        cmd2.Parameters.AddWithValue("b", 0);
+                        cmd2.Parameters.AddWithValue("c", message.Trim());
+                        cmd2.Parameters.AddWithValue("d", DateTime.Now);
+                        cmd2.Parameters.AddWithValue("e", username.Trim());
+                        cmd2.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -238,17 +251,20 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("a", maTK);
-                    cmd.Parameters.AddWithValue("b", maCTC);
-                    cmd.Parameters.AddWithValue("c", mess.Trim());
-                    cmd.Parameters.AddWithValue("d", DateTime.Now);
-                    cmd.Parameters.AddWithValue("e", ngGui.Trim());
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "INSERT INTO public.\"TinNhan\" (\"MaTK\", \"MaCTC\", \"NoiDung\", \"NgayGui\", \"TenTK\") VALUES (@a, @b, @c, @d, @e)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("a", maTK);
+                        cmd.Parameters.AddWithValue("b", maCTC);
+                        cmd.Parameters.AddWithValue("c", mess.Trim());
+                        cmd.Parameters.AddWithValue("d", DateTime.Now);
+                        cmd.Parameters.AddWithValue("e", ngGui.Trim());
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -263,15 +279,17 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt, \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t", username);
-                    cmd.Parameters.AddWithValue("tt", trangThai);
-                    cmd.Parameters.AddWithValue("tg", DateTime.Now);
-                    cmd.ExecuteNonQuery();
+                    conn.Open();
+                    string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = @tt, \"ThoiGianHDGanDay\" = @tg WHERE \"TenTK\" = @t";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("t", username);
+                        cmd.Parameters.AddWithValue("tt", trangThai);
+                        cmd.Parameters.AddWithValue("tg", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -285,13 +303,16 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\"";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    var reader = cmd.ExecuteScalar();
-                    return reader.ToString();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\"";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        var reader = cmd.ExecuteScalar();
+                        return reader.ToString();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -306,13 +327,16 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT COUNT(*) FROM public.\"TinNhan\"";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    var reader = cmd.ExecuteScalar();
-                    return reader.ToString();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT COUNT(*) FROM public.\"TinNhan\"";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        var reader = cmd.ExecuteScalar();
+                        return reader.ToString();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -328,24 +352,27 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT \"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\" FROM public.\"TaiKhoan\"";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    using (var reader = cmd.ExecuteReader())
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT \"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\" FROM public.\"TaiKhoan\"";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while (reader.Read())
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            list.Add(new ThongTinTK
+                            while (reader.Read())
                             {
-                                TenTK = reader.GetString(0),
-                                MatKhau = reader.GetString(1),
-                                Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-                                TrangThai = reader.GetString(3),
-                                BietDanh = reader.IsDBNull(4) ? null : reader.GetString(4),
-                                NgayTao = reader.GetDateTime(5)
-                            });
+                                list.Add(new ThongTinTK
+                                {
+                                    TenTK = reader.GetString(0),
+                                    MatKhau = reader.GetString(1),
+                                    Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                    TrangThai = reader.GetString(3),
+                                    BietDanh = reader.IsDBNull(4) ? null : reader.GetString(4),
+                                    NgayTao = reader.GetDateTime(5)
+                                });
+                            }
                         }
                     }
                 }
@@ -365,21 +392,24 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\", tk.\"BietDanh\" FROM public.\"TinNhan\" tn JOIN public.\"TaiKhoan\" tk ON tn.\"TenTK\" = tk.\"TenTK\" WHERE tn.\"MaCTC\" = 0 ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    using (var reader = cmd.ExecuteReader())
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\", tk.\"BietDanh\" FROM public.\"TinNhan\" tn JOIN public.\"TaiKhoan\" tk ON tn.\"TenTK\" = tk.\"TenTK\" WHERE tn.\"MaCTC\" = 0 ORDER BY tn.\"NgayGui\" ASC LIMIT 50";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while (reader.Read())
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            list.Add(new TinNhanDienDan
+                            while (reader.Read())
                             {
-                                TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
-                                NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
-                            });
+                                list.Add(new TinNhanDienDan
+                                {
+                                    TenTK = reader.IsDBNull(0) ? "" : reader.GetString(0),
+                                    NoiDung = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                    NgayGui = reader.IsDBNull(2) ? DateTime.Now : reader.GetDateTime(2),
+                                });
+                            }
                         }
                     }
                 }
@@ -398,24 +428,27 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 AND ctc.\"TrangThai\" <> 'Đã bị xóa' ORDER BY tn.\"NgayGui\" ASC";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("user", user.Trim());
-                    using (var reader = cmd.ExecuteReader())
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT ctc.\"MaCTC\", ctc.\"TenCTC\", tn.\"TenTK\", tn.\"NoiDung\", tn.\"NgayGui\" FROM public.\"CuocTroChuyen\" ctc JOIN public.\"ThanhVienNhom\" tvn ON ctc.\"MaCTC\" = tvn.\"MaCTC\" LEFT JOIN public.\"TinNhan\" tn ON ctc.\"MaCTC\" = tn.\"MaCTC\" WHERE tvn.\"TenTK\" = @user AND ctc.\"MaCTC\" <> 0 AND ctc.\"TrangThai\" <> 'Đã bị xóa' ORDER BY tn.\"NgayGui\" ASC";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("user", user.Trim());
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            list.Add(new TinNhanRieng
+                            while (reader.Read())
                             {
-                                MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
-                                TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
-                                NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
-                            });
+                                list.Add(new TinNhanRieng
+                                {
+                                    MaCTC = reader.IsDBNull(0) ? -1 : reader.GetInt16(0),
+                                    TenCTC = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                    TenTK = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                    NoiDung = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                                    NgayGui = reader.IsDBNull(4) ? DateTime.Now : reader.GetDateTime(4)
+                                });
+                            }
                         }
                     }
                 }
@@ -433,13 +466,16 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\" WHERE \"TrangThai\" = 'Đang trực tuyến'";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    var reader = cmd.ExecuteScalar();
-                    return Convert.ToInt32(reader);
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT COUNT(*) FROM public.\"TaiKhoan\" WHERE \"TrangThai\" = 'Đang trực tuyến'";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        var reader = cmd.ExecuteScalar();
+                        return Convert.ToInt32(reader);
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -454,13 +490,16 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = 'Đã bị cấm' WHERE \"TenTK\" = @t";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t", tenTK);
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "UPDATE public.\"TaiKhoan\" SET \"TrangThai\" = 'Đã bị cấm' WHERE \"TenTK\" = @t";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("t", tenTK);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -474,23 +513,26 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
-                using (var cmd = new NpgsqlCommand(sql1, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t", tenCTC);
-                    cmd.Parameters.AddWithValue("n", DateTime.Now);
-                    cmd.Parameters.AddWithValue("r", "Bình thường");
-                    var reader = cmd.ExecuteScalar();
-                    if (reader != null)
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql1 = "INSERT INTO public.\"CuocTroChuyen\" (\"TenCTC\", \"NgayTao\", \"TrangThai\") VALUES (@t, @n, @r) RETURNING \"MaCTC\"";
+                    using (var cmd = new NpgsqlCommand(sql1, conn))
                     {
-                        return Convert.ToInt32(reader);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Không thể tạo cuộc trò chuyện mới");
-                        return -1;
+                        cmd.Parameters.AddWithValue("t", tenCTC);
+                        cmd.Parameters.AddWithValue("n", DateTime.Now);
+                        cmd.Parameters.AddWithValue("r", "Bình thường");
+                        var reader = cmd.ExecuteScalar();
+                        if (reader != null)
+                        {
+                            return Convert.ToInt32(reader);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Không thể tạo cuộc trò chuyện mới");
+                            return -1;
+                        }
                     }
                 }
             }
@@ -506,14 +548,17 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "update public.\"CuocTroChuyen\" set \"TenCTC\" = @tenCTC where \"MaCTC\" = @maCTC";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("tenCTC", tenCTC);
-                    cmd.Parameters.AddWithValue("maCTC", maCTC);
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "update public.\"CuocTroChuyen\" set \"TenCTC\" = @tenCTC where \"MaCTC\" = @maCTC";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("tenCTC", tenCTC);
+                        cmd.Parameters.AddWithValue("maCTC", maCTC);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -527,13 +572,16 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "update public.\"CuocTroChuyen\" set \"TrangThai\" = 'Đã bị xóa' where \"MaCTC\" = @maCTC";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("maCTC", maCTC);
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "update public.\"CuocTroChuyen\" set \"TrangThai\" = 'Đã bị xóa' where \"MaCTC\" = @maCTC";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("maCTC", maCTC);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -547,16 +595,19 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("m", maCTC);
-                    cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
-                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                    cmd.Parameters.AddWithValue("n", DateTime.Now);
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "INSERT INTO public.\"ThanhVienNhom\" (\"MaCTC\", \"MaTK\", \"TenTK\", \"NgayTG\") VALUES (@m, @ma, @t, @n)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("m", maCTC);
+                        cmd.Parameters.AddWithValue("ma", LayMaTK(tenTK));
+                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                        cmd.Parameters.AddWithValue("n", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -570,21 +621,24 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t", tenTK.Trim());
-                    var reader = cmd.ExecuteScalar();
-                    if (reader != null)
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT \"MaTK\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @t";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        return Convert.ToInt32(reader);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
-                        return -1;
+                        cmd.Parameters.AddWithValue("t", tenTK.Trim());
+                        var reader = cmd.ExecuteScalar();
+                        if (reader != null)
+                        {
+                            return Convert.ToInt32(reader);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
+                            return -1;
+                        }
                     }
                 }
             }
@@ -600,16 +654,19 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "select * from public.\"BanBe\" where ((\"maTK1\" = @maTK1 AND \"maTK2\" = @maTK2) OR (\"maTK1\" = @maTK2 AND \"maTK2\" = @maTK1)) and TrangThai = 'Đang chờ'";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("maTK1", maTK1);
-                    cmd.Parameters.AddWithValue("maTK2", maTK2);
-                    var a = cmd.ExecuteScalar();
-                    if (a != null) return true;
-                    return false;
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "select * from public.\"BanBe\" where ((\"maTK1\" = @maTK1 AND \"maTK2\" = @maTK2) OR (\"maTK1\" = @maTK2 AND \"maTK2\" = @maTK1)) and TrangThai = 'Đang chờ'";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("maTK1", maTK1);
+                        cmd.Parameters.AddWithValue("maTK2", maTK2);
+                        var a = cmd.ExecuteScalar();
+                        if (a != null) return true;
+                        return false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -624,16 +681,19 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "INSERT INTO public.\"BanBe\" (\"TenTK1\", \"TenTK2\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("t1", maTK1);
-                    cmd.Parameters.AddWithValue("t2", maTK2);
-                    cmd.Parameters.AddWithValue("t", "Đang chờ");
-                    cmd.Parameters.AddWithValue("n", DateTime.Now);
-                    cmd.ExecuteNonQuery();
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "INSERT INTO public.\"BanBe\" (\"TenTK1\", \"TenTK2\", \"TrangThai\", \"NgayTG\") VALUES (@t1, @t2, @t, @n)";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("t1", maTK1);
+                        cmd.Parameters.AddWithValue("t2", maTK2);
+                        cmd.Parameters.AddWithValue("t", "Đang chờ");
+                        cmd.Parameters.AddWithValue("n", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -648,31 +708,30 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
-                            FROM public.""BanBe"" bb
-                            JOIN public.""TaiKhoan"" tk
-                            ON (
-                                (bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"")
-                                OR
-                                (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK"")
-                            )
-                            WHERE bb.""TrangThai"" = 'Kết bạn thành công'"; 
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("maTK", maTK);
-                    using (var reader = cmd.ExecuteReader())
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
+                                 FROM public.""BanBe"" bb JOIN public.""TaiKhoan"" tk
+                                 ON ((bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"") OR
+                                     (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK""))
+                                 WHERE bb.""TrangThai"" = 'Kết bạn thành công'";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while(reader.Read())
+                        cmd.Parameters.AddWithValue("maTK", maTK);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            bb.Add(new ThongTinBanBe
+                            while (reader.Read())
                             {
-                                MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
-                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
-                                BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
-                                TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
-                            });
+                                bb.Add(new ThongTinBanBe
+                                {
+                                    MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
+                                    TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                    BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                    TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                                });
+                            }
                         }
                     }
                 }
@@ -691,17 +750,20 @@ namespace Server
             NpgsqlConnection conn;
             try
             {
-                conn = new NpgsqlConnection(str);
-                conn.Open();
-                string sql = "SELECT tk.\"TenTK\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON bb.\"MaNgGui\" = tk.\"MaTK\" WHERE bb.\"MaNgNhan\" = @maTK AND bb.\"TrangThai\" = 'Đang chờ'";
-                using (var cmd = new NpgsqlCommand(sql, conn))
+                using (conn = new NpgsqlConnection(str))
                 {
-                    cmd.Parameters.AddWithValue("maTK", maTK);
-                    using (var reader = cmd.ExecuteReader())
+                    conn = new NpgsqlConnection(str);
+                    conn.Open();
+                    string sql = "SELECT tk.\"TenTK\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON bb.\"MaNgGui\" = tk.\"MaTK\" WHERE bb.\"MaNgNhan\" = @maTK AND bb.\"TrangThai\" = 'Đang chờ'";
+                    using (var cmd = new NpgsqlCommand(sql, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("maTK", maTK);
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            loiMoi.Add(reader.GetString(0));
+                            while (reader.Read())
+                            {
+                                loiMoi.Add(reader.GetString(0));
+                            }
                         }
                     }
                 }
