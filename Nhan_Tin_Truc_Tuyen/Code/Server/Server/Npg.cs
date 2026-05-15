@@ -15,9 +15,10 @@ namespace Server
                    "Trust Server Certificate=true;" +
                    "Pooling=true;" +
                    "Minimum Pool Size=5;" +
-                   "Maximum Pool Size=50;" +
+                   "Maximum Pool Size=300;" +
                    "Timeout=15;" +
                    "Command Timeout=30;";
+        private static readonly HttpClient client = new HttpClient();
 
         public static async Task<ThongTinDN?> DangNhap(string username, string password, string role)
         {
@@ -117,7 +118,6 @@ namespace Server
 
         public static async Task<bool> XacMinhTaiKhoan(string token)
         {
-            using var client = new HttpClient();
             var values = new Dictionary<string, string>
             {
                 { "secret", "6LfUTessAAAAAMXT8yNhWOABi-YeAnWi3LE6Jq7n" },
@@ -532,6 +532,7 @@ namespace Server
 
         public async static Task ThemThanhVien(int maCTC, string tenTK)
         {
+            int maTK = await LayMaTK(tenTK);
             try
             {
                 using var conn = new NpgsqlConnection(str);
@@ -540,7 +541,7 @@ namespace Server
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("m", maCTC);
-                    cmd.Parameters.AddWithValue("ma", await LayMaTK(tenTK));
+                    cmd.Parameters.AddWithValue("ma", maTK);
                     cmd.Parameters.AddWithValue("t", tenTK.Trim());
                     cmd.Parameters.AddWithValue("n", DateTime.Now);
                     await cmd.ExecuteNonQueryAsync();
