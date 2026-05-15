@@ -53,7 +53,7 @@ namespace Server.Controllers
             }
             try
             {
-                string result = Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt, req.Captcha);
+                string result = Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt);
                 if (result == "Ok")
                 {
                     return Ok(new { message = "Đăng ký thành công!" });

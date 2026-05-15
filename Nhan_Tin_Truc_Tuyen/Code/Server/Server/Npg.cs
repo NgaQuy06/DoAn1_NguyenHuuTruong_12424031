@@ -73,9 +73,9 @@ namespace Server
             }
         }
 
-        public static string DangKy(string username, string password, string email, int sdt, string capCha)
+        public static string DangKy(string TenTK, string MatKhau, string Email, int Sdt)
         {
-            if (KiemTraTenTK(username))
+            if (KiemTraTenTK(TenTK))
             {
                 return "Tên tài khoản đã tồn tại!";
             }
@@ -88,13 +88,13 @@ namespace Server
                 string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("a", username.Trim());
-                    cmd.Parameters.AddWithValue("b", password.Trim());
-                    if (string.IsNullOrWhiteSpace(email))
+                    cmd.Parameters.AddWithValue("a", TenTK.Trim());
+                    cmd.Parameters.AddWithValue("b", MatKhau.Trim());
+                    if (string.IsNullOrWhiteSpace(Email))
                         cmd.Parameters.AddWithValue("c", DBNull.Value);
                     else
-                        cmd.Parameters.AddWithValue("c", email.Trim());
-                    cmd.Parameters.AddWithValue("d", sdt);
+                        cmd.Parameters.AddWithValue("c", Email.Trim());
+                    cmd.Parameters.AddWithValue("d", Sdt);
                     cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
                     cmd.Parameters.AddWithValue("f", "Người dùng mới");
                     cmd.Parameters.AddWithValue("g", DateTime.Now);
