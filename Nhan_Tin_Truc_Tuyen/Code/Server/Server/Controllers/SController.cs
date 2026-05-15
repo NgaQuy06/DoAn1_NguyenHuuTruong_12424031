@@ -31,12 +31,12 @@ namespace Server.Controllers
         //    }
         //}
 
-        [HttpGet("thongtinbanbe")] // /api/s/thongtinbanbe
-        public IActionResult LayThongTinBanBe([FromQuery] int maTK)
+        [HttpGet("danhsachbanbe")] // /api/s/danhsachbanbe
+        public IActionResult LayDanhSachBanBe([FromQuery] int maTK)
         {
             try
             {
-                var bb = Npg.LayThongTinBanBe(maTK);
+                var bb = Npg.LayDanhSachBanBe(maTK);
                 if (bb != null)
                 {
                     return Ok(bb);
