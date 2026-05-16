@@ -641,7 +641,26 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "SELECT tk.\"MaTK\", tk.\"TenTK\", tk.\"BietDanh\", bb.\"TrangThai\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON ((bb.\"MaNgGui\" = @maTK AND bb.\"MaNgNhan\" = tk.\"MaTK\") OR (bb.\"MaNgNhan\" = @maTK AND bb.\"MaNgGui\" = tk.\"MaTK\")) WHERE bb.\"TrangThai\" = 'Kết bạn thành công'";
+                string sql = @"SELECT 
+                                tk.""MaTK"",
+                                tk.""TenTK"",
+                                tk.""BietDanh"",
+                                bb.""TrangThai""
+                            FROM public.""BanBe"" bb
+                            JOIN public.""TaiKhoan"" tk
+                            ON tk.""MaTK"" =
+                                CASE
+                                    WHEN bb.""MaNgGui"" = @maTK
+                                    THEN bb.""MaNgNhan""
+                                    ELSE bb.""MaNgGui""
+                                END
+                            WHERE
+                            (
+                                bb.""MaNgGui"" = @maTK
+                                OR
+                                bb.""MaNgNhan"" = @maTK
+                            )
+                            AND bb.""TrangThai"" = 'Kết bạn thành công'";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("maTK", maTK);
