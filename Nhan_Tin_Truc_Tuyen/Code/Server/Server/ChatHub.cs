@@ -179,16 +179,21 @@ namespace Server
             }
         }
 
-        public async Task TraLoiKetBan(string tl, string ngGui, string tenTK)
+        public async Task TraLoiKetBan(string tl, string tenTK, string ngGui)
         {
             try
             {
+                Console.WriteLine(tl);
+                Console.WriteLine(tenTK);
+                Console.WriteLine(ngGui);
                 await Npg.TraLoiKetBan(tl, ngGui, tenTK);
                 if (tl == "Kết bạn thành công")
                 {
                     await Clients.User(ngGui).SendAsync("ThongBaoKetBan", tenTK + " đã chấp nhận lời mời kết bạn của bạn!");
+                    await Clients.Caller.SendAsync("ThongBaoKetBan", "Bạn đã chấp nhận lời mời kết bạn của " + ngGui + "!");
                     var tb = await Npg.LayBanBe(tenTK);
                     await Clients.User(ngGui).SendAsync("ThemBanBe", tb);
+                    await Clients.Caller.SendAsync("ThemBanBe", tb);
                 }
             }
             catch (Exception ex)
