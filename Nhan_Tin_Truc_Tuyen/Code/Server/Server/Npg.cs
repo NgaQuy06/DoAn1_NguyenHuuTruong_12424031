@@ -646,7 +646,7 @@ namespace Server
                                 tk.""MaTK"",
                                 tk.""TenTK"",
                                 tk.""BietDanh"",
-                                bb.""TrangThai""
+                                tk.""TrangThai""
                             FROM public.""BanBe"" bb
                             JOIN public.""TaiKhoan"" tk
                             ON tk.""MaTK"" =
