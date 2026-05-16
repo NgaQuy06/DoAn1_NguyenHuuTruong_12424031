@@ -14,20 +14,20 @@ namespace Server.Controllers
         }
 
         [HttpPost("timkiembanbe")] // /api/s/timkiembanbe
-        public IActionResult TimKiemBB([FromBody] SearchRequest req)
+        public async Task<IActionResult> TimKiemBB([FromBody] SearchRequest req)
         {
             try
             {
-                var siu = Npg.TimKiemBB(req.TenTK);
+                var siu = await Npg.TimKiemBB(req.TenTK);
                 if (siu != null)
                 {
-                    return Ok(new { siu });
+                    return Ok(siu);
                 }
-                return BadRequest(new { });
+                return BadRequest(null);
             }
             catch (Exception e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(e.Message);
             }
         }
 
@@ -41,7 +41,7 @@ namespace Server.Controllers
                 {
                     return Ok(bb);
                 }
-                return BadRequest(new { message = "Không tìm thấy thông tin bạn bè" });
+                return BadRequest("Không tìm thấy thông tin bạn bè");
             }
             catch (Exception e)
             {
