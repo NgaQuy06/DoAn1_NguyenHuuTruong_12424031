@@ -18,7 +18,7 @@ namespace Server.Controllers
         {
             try
             {
-                var siu = Npg.TimKiemBB(req.Username);
+                var siu = Npg.TimKiemBB(req.TenTK);
                 if (siu != null)
                 {
                     return Ok(new { siu });
