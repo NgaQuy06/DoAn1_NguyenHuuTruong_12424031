@@ -18,20 +18,12 @@ namespace Server
             }
         }
 
-        public async Task GuiTNRieng(int maCTC, int maTK, string tenTK, List<string> dsNgNhan, string mess)
+        public async Task GuiTNRieng(int maCTC, int maTK, string tenTK, string tenNgNhan, string mess)
         {
             try
             {
                 await Npg.ChenTNRieng(maTK, tenTK, maCTC, mess);
-                // gửi cho người nhận
-                foreach (string ngNhan in dsNgNhan.Distinct())
-                {
-                    if (ngNhan == tenTK)
-                        continue;
-
-                    await Clients.User(ngNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now });
-                }
-                // gửi lại cho chính mình (để hiển thị)
+                await Clients.User(tenNgNhan).SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now });
                 await Clients.Caller.SendAsync("NhanTNRieng", new TNRieng { MaCTC = maCTC, TenTK = tenTK, NoiDung = mess, NgayGui = DateTime.Now } );
             }
             catch (Exception ex)
@@ -131,7 +123,7 @@ namespace Server
                     await Npg.ThemThanhVien(maCTC, tenNgNhan);
                     await Clients.User(tenNgNhan).SendAsync("ThemCTC", maCTC, tenCTC, tenNgNhan);
                     await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, tenNgNhan);
-                    await Clients.Caller.SendAsync("ThongBaoCTC", "Bạn đã được " + tenTK + "Tạo nhóm chat thành công!");
+                    await Clients.Caller.SendAsync("ThongBaoCTC", "Tạo nhóm chat thành công!");
                 }
             }
             catch (Exception ex)
