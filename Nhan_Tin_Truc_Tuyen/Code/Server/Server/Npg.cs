@@ -38,7 +38,7 @@ namespace Server
 
                     if (await reader.ReadAsync())
                     {
-                        dn.MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt64(0);
+                        dn.MaTK = reader.GetInt32(0);
                         dn.Email = reader.IsDBNull(1) ? "" : reader.GetString(1);
                         dn.BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2);
                         return dn;
