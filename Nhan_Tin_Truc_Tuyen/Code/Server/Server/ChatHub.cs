@@ -179,15 +179,15 @@ namespace Server
             }
         }
 
-        public async Task TraLoiKetBan(string tl, string tenTK, string ngGui)
+        public async Task TraLoiKetBan(string tl, string ngGui, string tenTK)
         {
             try
             {
-                await Npg.TraLoiKetBan(tl, tenTK, ngGui);
+                await Npg.TraLoiKetBan(tl, ngGui, tenTK);
                 if (tl == "Kết bạn thành công")
                 {
                     await Clients.User(ngGui).SendAsync("ThongBaoKetBan", tenTK + " đã chấp nhận lời mời kết bạn của bạn!");
-                    var tb = await Npg.ThemBanBe(tenTK);
+                    var tb = await Npg.LayBanBe(tenTK);
                     await Clients.User(ngGui).SendAsync("ThemBanBe", tb);
                 }
             }

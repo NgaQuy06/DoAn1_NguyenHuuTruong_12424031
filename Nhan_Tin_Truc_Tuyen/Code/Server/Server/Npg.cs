@@ -715,15 +715,16 @@ namespace Server
             return loiMoi;
         }
 
-        public async static Task TraLoiKetBan(string tl, string ngNhan, string ngGui)
+        public async static Task TraLoiKetBan(string tl, string ngGui, string ngNhan)
         {
             try
             {
+
                 int maNgGui = await LayMaTK(ngGui);
                 int maNgNhan = await LayMaTK(ngNhan);
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "UPDATE public.\"BanBe\" SET \"TrangThai\" = @tl WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan AND \"TrangThai\" = 'Đang chờ'";
+                string sql = "UPDATE public.\"BanBe\" SET \"TrangThai\" = @tl WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("tl", tl);
@@ -765,9 +766,9 @@ namespace Server
             }
         }
 
-        public async static Task<ThemBanBe> ThemBanBe(string tenTK)
+        public async static Task<ThongTinBanBe> LayBanBe(string tenTK)
         {
-            ThemBanBe tb = null;
+            ThongTinBanBe tb = null;
             try
             {
                 int maTK = await LayMaTK(tenTK);
@@ -781,7 +782,7 @@ namespace Server
                     {
                         while (await reader.ReadAsync())
                         {
-                            tb = new ThemBanBe
+                            tb = new ThongTinBanBe
                             {
                                 MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
                                 TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
