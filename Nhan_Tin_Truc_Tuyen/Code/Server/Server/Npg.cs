@@ -161,9 +161,9 @@ namespace Server
             }
         }
 
-        public async static Task<List<ThongTinBB>> TimKiemBB(string username)
+        public async static Task<List<ThongTinTimKiem>> TimKiemBB(string username)
         {
-            var list = new List<ThongTinBB>();
+            var list = new List<ThongTinTimKiem>();
             try
             {
                 using var conn = new NpgsqlConnection(str); 
@@ -176,7 +176,7 @@ namespace Server
                     {
                         while (await reader.ReadAsync())
                         {
-                            list.Add(new ThongTinBB
+                            list.Add(new ThongTinTimKiem
                             {
                                 MaTK = Convert.ToInt32(reader["MaTK"]),
                                 TenTK = reader["TenTK"].ToString(),
@@ -723,7 +723,7 @@ namespace Server
         public string BietDanh { get; set; }
     }
 
-    public class ThongTinBB
+    public class ThongTinTimKiem
     {
         public int MaTK { get; set; }
         public string TenTK { get; set; }
