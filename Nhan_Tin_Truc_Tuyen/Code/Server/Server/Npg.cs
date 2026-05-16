@@ -715,11 +715,13 @@ namespace Server
             return loiMoi;
         }
 
-        public async static Task TraLoiKetBan(string tl, string ngGui, string ngNhan)
+        public async static Task TraLoiKetBan(string tl, string ngNhan, string ngGui)
         {
             try
             {
-
+                Console.WriteLine(tl);
+                Console.WriteLine(ngNhan);
+                Console.WriteLine(ngGui);
                 int maNgGui = await LayMaTK(ngGui);
                 int maNgNhan = await LayMaTK(ngNhan);
                 using var conn = new NpgsqlConnection(str);

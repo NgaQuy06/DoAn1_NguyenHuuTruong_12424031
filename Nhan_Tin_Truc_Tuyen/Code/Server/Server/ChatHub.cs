@@ -186,7 +186,7 @@ namespace Server
                 Console.WriteLine(tl);
                 Console.WriteLine(tenTK);
                 Console.WriteLine(ngGui);
-                await Npg.TraLoiKetBan(tl, ngGui, tenTK);
+                await Npg.TraLoiKetBan(tl, tenTK, ngGui);
                 if (tl == "Kết bạn thành công")
                 {
                     await Clients.User(ngGui).SendAsync("ThongBaoKetBan", tenTK + " đã chấp nhận lời mời kết bạn của bạn!");
