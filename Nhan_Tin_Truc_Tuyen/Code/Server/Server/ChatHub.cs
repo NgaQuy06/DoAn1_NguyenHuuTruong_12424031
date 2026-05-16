@@ -120,7 +120,7 @@ namespace Server
             }
         }
 
-        public async Task TaoCTC(string tenCTC, string tenTK, List<string> dsNgNhan)
+        public async Task TaoCTC(string tenCTC, string tenTK, string tenNgNhan)
         {
             try
             {
@@ -128,19 +128,15 @@ namespace Server
                 if (maCTC != -1)
                 {
                     await Npg.ThemThanhVien(maCTC, tenTK);
-                    foreach (string ngNhan in dsNgNhan.Distinct())
-                    {
-
-                        await Npg.ThemThanhVien(maCTC, ngNhan);
-                        await Clients.User(ngNhan).SendAsync("ThemCTC", maCTC, tenCTC, dsNgNhan);
-                    }
-                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, dsNgNhan);
+                    await Npg.ThemThanhVien(maCTC, tenNgNhan);
+                    await Clients.User(tenNgNhan).SendAsync("ThemCTC", maCTC, tenCTC, tenNgNhan);
+                    await Clients.Caller.SendAsync("ThemCTC", maCTC, tenCTC, tenNgNhan);
                     await Clients.Caller.SendAsync("ThongBaoCTC", "Bạn đã được " + tenTK + "Tạo nhóm chat thành công!");
                 }
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("Loi", ex.Message);
+                await Clients.Caller.SendAsync("Loi", ex.ToString());
             }
         }
 
