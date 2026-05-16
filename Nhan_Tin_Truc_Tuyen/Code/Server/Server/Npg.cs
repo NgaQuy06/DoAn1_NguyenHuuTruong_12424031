@@ -6,6 +6,13 @@ namespace Server
 {
     public class Npg
     {
+        //public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
+        //           "Port=5432;" +
+        //           "Database=postgres;" +
+        //           "Username=postgres.fauxrzhhtdiesxfxuftz;" +
+        //           "Password=Nguyentrg2006$;" +
+        //           "SSL Mode=Require;" +
+        //           "Trust Server Certificate=true;" +
         public static string str = "Host=aws-1-ap-northeast-1.pooler.supabase.com;" +
                    "Port=5432;" +
                    "Database=postgres;" +
@@ -28,7 +35,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "select 1 from fun_dangnhaptaikhoan(@u, @p, @r)";
+                string sql = "select \"MaTK\", \"Email\", \"BietDanh\" from public.\"TaiKhoan\" where \"TenTK\" = @u and \"MatKhau\" = @p and \"QuyenHan\" = @r";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
@@ -634,11 +641,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = @"SELECT tk.""MaTK"", tk.""TenTK"", tk.""BietDanh"", bb.""TrangThai""
-                                 FROM public.""BanBe"" bb JOIN public.""TaiKhoan"" tk
-                                 ON ((bb.""MaNgGui"" = @maTK AND bb.""MaNgNhan"" = tk.""MaTK"") OR
-                                     (bb.""MaNgNhan"" = @maTK AND bb.""MaNgGui"" = tk.""MaTK""))
-                                 WHERE bb.""TrangThai"" = 'Kết bạn thành công'";
+                string sql = "SELECT tk.\"MaTK\", tk.\"TenTK\", tk.\"BietDanh\", bb.\"TrangThai\" FROM public.\"BanBe\" bb JOIN public.\"TaiKhoan\" tk ON ((bb.\"MaNgGui\" = @maTK AND bb.\"MaNgNhan\" = tk.\"MaTK\") OR (bb.\"MaNgNhan\" = @maTK AND bb.\"MaNgGui\" = tk.\"MaTK\")) WHERE bb.\"TrangThai\" = 'Kết bạn thành công'";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("maTK", maTK);
