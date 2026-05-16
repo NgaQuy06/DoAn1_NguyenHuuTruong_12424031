@@ -24,7 +24,9 @@ namespace Server.Controllers
                 else if (siu == "Đã bị khóa")
                     return BadRequest("Tài khoản bị khóa!");
                 var result = await Npg.DangNhap(req.Username, req.Password, req.Role);
-                Console.WriteLine(result);
+                Console.WriteLine($"User: '{req.Username}'");
+                Console.WriteLine($"Pass: '{req.Password}'");
+                Console.WriteLine($"Role: '{req.Role}'");
                 if (result != null)
                 {
                     return Ok(result);
