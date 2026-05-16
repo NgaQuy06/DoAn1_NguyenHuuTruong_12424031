@@ -13,23 +13,23 @@ namespace Server.Controllers
             return Ok("Bạn muốn tìm gì?");
         }
 
-        //[HttpPost("timkiembb")] // /api/s/timkiembb
-        //public IActionResult TimKiemBB([FromBody] SearchRequest req)
-        //{
-        //    try
-        //    {
-        //        var siu = Npg.TimKiemBB(req.Username);
-        //        if (siu.Count > 0)
-        //        {
-        //            return Ok(new { siu });
-        //        }
-        //        return BadRequest( new {});
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(new { message = e.Message });
-        //    }
-        //}
+        [HttpPost("timkiembanbe")] // /api/s/timkiembanbe
+        public IActionResult TimKiemBB([FromBody] SearchRequest req)
+        {
+            try
+            {
+                var siu = Npg.TimKiemBB(req.Username);
+                if (siu != null)
+                {
+                    return Ok(new { siu });
+                }
+                return BadRequest(new { });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
 
         [HttpGet("danhsachbanbe")] // /api/s/danhsachbanbe
         public async Task<IActionResult> LayDanhSachBanBe([FromQuery] int maTK)
@@ -65,6 +65,6 @@ namespace Server.Controllers
     }
     public class SearchRequest
     {
-        public string Username { get; set; }
+        public string TenTK { get; set; }
     }
 }

@@ -168,7 +168,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str); 
                 await conn.OpenAsync();
-                string sql = "SELECT \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
+                string sql = "SELECT \"MaTK\", \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", "%" + username.Trim() + "%");
@@ -178,6 +178,7 @@ namespace Server
                         {
                             list.Add(new ThongTinBB
                             {
+                                MaTK = Convert.ToInt32(reader["MaTK"]),
                                 TenTK = reader["TenTK"].ToString(),
                                 BietDanh = reader["BietDanh"].ToString(),
                                 TrangThai = reader["TrangThai"].ToString()
@@ -724,6 +725,7 @@ namespace Server
 
     public class ThongTinBB
     {
+        public int MaTK { get; set; }
         public string TenTK { get; set; }
         public string BietDanh { get; set; }
         public string TrangThai { get; set; }
