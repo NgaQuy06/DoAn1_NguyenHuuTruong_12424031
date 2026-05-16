@@ -714,6 +714,56 @@ namespace Server
             }
             return loiMoi;
         }
+
+        public async static Task TraLoiKetBan(string tl, string ngNhan, string ngGui)
+        {
+            try
+            {
+                int maNgGui = await LayMaTK(ngGui);
+                int maNgNhan = await LayMaTK(ngNhan);
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "UPDATE public.\"BanBe\" SET \"TrangThai\" = @tl WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan AND \"TrangThai\" = 'Đang chờ'";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("tl", tl);
+                    cmd.Parameters.AddWithValue("maNgGui", maNgGui);
+                    cmd.Parameters.AddWithValue("maNgNhan", maNgNhan);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(trả lời kết bạn): " + ex.Message);
+            }
+        }
+
+        public async static Task<bool> KiemTraTrangThaiKetBan(string ngGui, string trangThai)
+        {
+            try
+            {
+                int maNgGui = await LayMaTK(ngGui);
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT 1 FROM public.\"BanBe\" WHERE \"MaNgGui\" = @maNgGui AND \"TrangThai\" = @trangThai LIMIT 1";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maNgGui", maNgGui);
+                    cmd.Parameters.AddWithValue("trangThai", trangThai);
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(kiểm tra trạng thái kết bạn): " + ex.Message);
+                throw;
+            }
+        }
     }
 
     public class ThongTinDN

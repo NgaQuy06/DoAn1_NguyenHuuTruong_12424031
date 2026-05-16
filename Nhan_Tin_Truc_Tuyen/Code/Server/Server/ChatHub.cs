@@ -170,15 +170,20 @@ namespace Server
             }
         }
 
-        public async Task GuiLoiMoiKetBan(string tenTK1, string tenTK2)
+        public async Task GuiLoiMoiKetBan(string tenNgGui, string tenNgNhan)
         {
             try
             {
-                int maTK1 = await Npg.LayMaTK(tenTK1);
-                int maTK2 = await Npg.LayMaTK(tenTK2);
-                await Npg.KetBan(maTK1, maTK2);
-                await Clients.User(tenTK2).SendAsync("NhanLoiMoiKetBan", tenTK1);
-                await Clients.Caller.SendAsync("ThongBaoKetBan", "Đã gửi lời mời kết bạn đến " + tenTK2);
+                if (await Npg.KiemTraTrangThaiKetBan(tenNgGui, "Đang chờ"))
+                {
+                    await Clients.Caller.SendAsync("ThongBaoKetBan", "Bạn đã gửi lời mời kết bạn cho " + tenNgNhan + " rồi, vui lòng chờ phản hồi!");
+                    return;
+                }
+                int maNgGui = await Npg.LayMaTK(tenNgGui);
+                int maNgNhan = await Npg.LayMaTK(tenNgNhan);
+                await Npg.KetBan(maNgGui, maNgNhan);
+                await Clients.User(tenNgNhan).SendAsync("NhanLoiMoiKetBan", tenNgGui);
+                await Clients.Caller.SendAsync("ThongBaoKetBan", "Đã gửi lời mời kết bạn thành công");
             }
             catch (Exception ex)
             {
@@ -186,11 +191,11 @@ namespace Server
             }
         }
 
-        public async Task TraLoiKetBan(string tl, string tenTK, string ngNhan)
+        public async Task TraLoiKetBan(string tl, string tenTK, string ngGui)
         {
             try
             {
-
+                await Npg.TraLoiKetBan(tl, tenTK, ngGui);
             }
             catch (Exception ex)
             {
