@@ -52,7 +52,7 @@ namespace Server
                     }
                     return null;
                 }
-                
+
             }
             catch (NpgsqlException e)
             {
@@ -166,7 +166,7 @@ namespace Server
             var list = new List<ThongTinTimKiem>();
             try
             {
-                using var conn = new NpgsqlConnection(str); 
+                using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
                 string sql = "SELECT \"MaTK\", \"TenTK\", \"BietDanh\", \"TrangThai\" FROM public.\"TaiKhoan\" WHERE \"TenTK\" ILIKE @u";
                 using (var cmd = new NpgsqlCommand(sql, conn))
@@ -186,7 +186,7 @@ namespace Server
                         }
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -764,8 +764,41 @@ namespace Server
                 throw;
             }
         }
-    }
 
+        public async static Task<ThemBanBe> ThemBanBe(string tenTK)
+        {
+            ThemBanBe tb = null;
+            try
+            {
+                int maTK = await LayMaTK(tenTK);
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "select \"MaTK\", \"TenTK\", \"BietDanh\", \"TrangThai\" from public.\"TaiKhoan\" where \"MaTK\" = @maTK";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            tb = new ThemBanBe
+                            {
+                                MaTK = reader.IsDBNull(0) ? -1 : reader.GetInt32(0),
+                                TenTK = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                                BietDanh = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                                TrangThai = reader.IsDBNull(3) ? "" : reader.GetString(3)
+                            };
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(thêm bạn bè): " + ex.Message);
+            }
+            return tb;
+        }
+    }
     public class ThongTinDN
     {
         public long MaTK { get; set; }
@@ -813,5 +846,13 @@ namespace Server
         public string TenTK { get; set; }
         public string BietDanh { get; set; }
         public string TrangThai { get; set; }
-    } 
+    }
+
+    public class ThemBanBe
+    {
+        public int MaTK { get; set; }
+        public string TenTK { get; set; }
+        public string BietDanh { get; set; }
+        public string TrangThai { get; set; }
+    }
 }
