@@ -28,7 +28,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "select \"MaTK\", \"Email\", \"BietDanh\" from public.\"TaiKhoan\" where \"TenTK\" = @u and \"MatKhau\" = @p and \"QuyenHan\" = @r";
+                string sql = "select 1 from fun_dangnhaptaikhoan(@u, @p, @r)"
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", username.Trim());
