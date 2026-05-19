@@ -576,11 +576,6 @@ namespace Server
                     {
                         return Convert.ToInt32(reader);
                     }
-                    else
-                    {
-                        Console.WriteLine("Tài khoản không tồn tại: " + tenTK);
-                        return -1;
-                    }
                 }
             }
             catch (NpgsqlException ex)
@@ -726,7 +721,9 @@ namespace Server
                 int maNgNhan = await LayMaTK(ngNhan);
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "UPDATE public.\"BanBe\" SET \"TrangThai\" = @tl WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan";
+                string sql;
+                if (tl == "Kết bạn thất bại") sql = "DELETE FROM public.\"BanBe\" WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan";
+                else sql = "UPDATE public.\"BanBe\" SET \"TrangThai\" = @tl WHERE \"MaNgGui\" = @maNgGui AND \"MaNgNhan\" = @maNgNhan";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("tl", tl);
@@ -800,6 +797,52 @@ namespace Server
                 Console.WriteLine("Lỗi DB(thêm bạn bè): " + ex.Message);
             }
             return tb;
+        }
+
+        public async static Task<bool> KiemTraChanTaiKhoan(int maTKChan, int maTKBiChan)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "select 1 from public.\"ChanTaiKhoan\" where \"MaTKChan\" = @maTKChan AND \"MaTKBiChan\" = @maTKBiChan";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTKChan", maTKChan);
+                    cmd.Parameters.AddWithValue("maTKBiChan", maTKBiChan);
+                    var result = await cmd.ExecuteScalarAsync();
+                    if (result != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(cập nhật biệt danh): " + ex.Message);
+            }
+            return false;
+        }
+
+        public async static Task ChanTaiKhoan(int maTKChan, int maTKBiChan)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "INSERT INTO public.\"ChanTaiKhoan\" (\"MaTKChan\", \"MaTKBiChan\", \"NgayChan\") VALUES (@mChan, @mBiChan, @n)";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("mChan", maTKChan);
+                    cmd.Parameters.AddWithValue("mBiChan", maTKBiChan);
+                    cmd.Parameters.AddWithValue("n", DateTime.Now);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(cập nhật biệt danh): " + ex.Message);
+            }
         }
     }
     public class ThongTinDN

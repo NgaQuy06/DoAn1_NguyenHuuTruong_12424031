@@ -183,18 +183,40 @@ namespace Server
         {
             try
             {
-                Console.WriteLine(tl);
-                Console.WriteLine(tenTK);
-                Console.WriteLine(ngGui);
                 await Npg.TraLoiKetBan(tl, tenTK, ngGui);
                 if (tl == "Kết bạn thành công")
                 {
                     await Clients.User(ngGui).SendAsync("ThongBaoKetBan", tenTK + " đã chấp nhận lời mời kết bạn của bạn!");
                     await Clients.Caller.SendAsync("ThongBaoKetBan", "Bạn đã chấp nhận lời mời kết bạn của " + ngGui + "!");
-                    var tb = await Npg.LayBanBe(tenTK);
+                    var tb = await Npg.LayBanBe(ngGui);
                     await Clients.User(ngGui).SendAsync("ThemBanBe", tb);
                     await Clients.Caller.SendAsync("ThemBanBe", tb);
                 }
+                else
+                {
+                    await Clients.User(ngGui).SendAsync("ThongBaoKetBan", tenTK + " đã từ chối lời mời kết bạn của bạn!");
+                    await Clients.Caller.SendAsync("ThongBaoKetBan", "Bạn đã từ chối lời mời kết bạn của " + ngGui + "!");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
+        public async Task ChanTaiKhoan(string ngChan, string ngBiChan)
+        {
+            try
+            {
+                int maTKChan = await Npg.LayMaTK(ngChan);
+                int maTKBiChan = await Npg.LayMaTK(ngBiChan);
+                if (await Npg.KiemTraChanTaiKhoan(maTKChan, maTKBiChan))
+                {
+                    await Clients.Caller.SendAsync("ThongBaoChan", "Bạn đã chặn " + ngBiChan + " rồi!");
+                    return;
+                }
+                await Npg.ChanTaiKhoan(maTKChan, maTKBiChan);
+                await Clients.Caller.SendAsync("ThongBaoChan", "Bạn đã chặn " + ngBiChan + " thành công!");
             }
             catch (Exception ex)
             {
