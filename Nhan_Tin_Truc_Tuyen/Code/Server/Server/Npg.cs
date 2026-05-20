@@ -167,7 +167,7 @@ namespace Server
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"Email\" = @e";
+                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND LOWER(\"Email\") = LOWER(@e)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", tenTK.Trim());
