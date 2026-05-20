@@ -84,23 +84,25 @@ namespace Server.Controllers
                 bool tenTK = await Npg.KiemTraTenTK(req.tenTK);
                 if (!tenTK)
                 {
-                    return BadRequest("Tên tài khoản không tồn tại!");
+                    return BadRequest(new { message = "Tên tài khoản không tồn tại!" });
                 }
                 bool email = await Npg.KiemTraEmail(req.tenTK, req.email);
                 if (!email)
                 {
-                    return BadRequest("Email không tồn tại!");
+                    return BadRequest(new { message = "Email không tồn tại!" });
                 }
-
-                Random rd = new Random();
-                int otp = rd.Next(100000, 999999);
-                ChatHub.dsOTP[req.email] = otp;
-                await GuiMail(req.email, otp);
-                return Ok("Ok");
+                else
+                {
+                    Random rd = new Random();
+                    int otp = rd.Next(100000, 999999);
+                    ChatHub.dsOTP[req.email] = otp;
+                    await GuiMail(req.email, otp);
+                    return Ok(new { message = "Ok" });
+                }
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new { message = e.Message });
             }
         }
 
@@ -133,14 +135,14 @@ namespace Server.Controllers
                     if (ChatHub.dsOTP[req.email] == req.otp)
                     {
                         ChatHub.dsOTP.Remove(req.email);
-                        return Ok("OTP đúng!");
+                        return Ok(new { message = "OTP đúng!" });
                     }
                 }
-                return BadRequest("OTP sai!");
+                return BadRequest(new { message = "OTP sai!" });
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(new { message = e.Message });
             }
         }
     }
