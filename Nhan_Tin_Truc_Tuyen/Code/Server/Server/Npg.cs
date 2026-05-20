@@ -86,13 +86,13 @@ namespace Server
             }
         }
 
-        public async static Task<string> DangKy(string TenTK, string MatKhau, string Email, int Sdt)
+        public async static Task<string> DangKy(string TenTK, string MatKhau, string Email)
         {
             try
             {
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"Sdt\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @d, @e, @f, @g, @h)";
+                string sql = "INSERT INTO public.\"TaiKhoan\" (\"TenTK\", \"MatKhau\", \"Email\", \"TrangThai\", \"BietDanh\", \"NgayTao\", \"QuyenHan\") VALUES (@a, @b, @c, @e, @f, @g, @h)";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("a", TenTK.Trim());
@@ -101,7 +101,6 @@ namespace Server
                         cmd.Parameters.AddWithValue("c", DBNull.Value);
                     else
                         cmd.Parameters.AddWithValue("c", Email.Trim());
-                    cmd.Parameters.AddWithValue("d", Sdt);
                     cmd.Parameters.AddWithValue("e", "Đang ngoại tuyến");
                     cmd.Parameters.AddWithValue("f", "Người dùng mới");
                     cmd.Parameters.AddWithValue("g", DateTime.Now);

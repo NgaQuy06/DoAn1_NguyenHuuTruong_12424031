@@ -264,6 +264,16 @@ namespace Server
             }
         }
 
+        public async Task GuiTN(string mess)
+        {
+            await Clients.All.SendAsync("NhanTNChung", Context.UserIdentifier, mess);
+        }
+
+        public async Task GuiTB(string mess)
+        {
+            await Clients.All.SendAsync("ThongBaoTuQTV", mess);
+        }
+
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine(Context.UserIdentifier + " đã kết nối đến máy chủ vào lúc " + DateTime.Now);
