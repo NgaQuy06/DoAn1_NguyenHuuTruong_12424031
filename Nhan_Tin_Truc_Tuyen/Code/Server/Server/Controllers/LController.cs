@@ -113,18 +113,22 @@ namespace Server.Controllers
             try
             {
                 using var message = new MailMessage();
-        
+
                 message.From = new MailAddress(from);
                 message.Subject = "Mã xác thực quên mật khẩu";
                 message.Body = "Mã OTP của bạn là: " + otp + "\n Mã này sẽ hết hạn sau 5 phút.";
-        
+
                 message.To.Add(toEmail);
                 using var smtp = new SmtpClient("smtp.gmail.com", 587);
-        
+
                 smtp.Credentials = new NetworkCredential(from, password);
                 smtp.EnableSsl = true;
-        
+                smtp.UseDefaultCredentials = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.Timeout = 20000;
+
                 await smtp.SendMailAsync(message);
+                Console.WriteLine("Gửi mail thành công");
             }
             catch (Exception e)
             {
