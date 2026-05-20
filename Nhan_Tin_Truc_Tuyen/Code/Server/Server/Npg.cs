@@ -872,6 +872,28 @@ namespace Server
                 Console.WriteLine("Lỗi DB(cập nhật biệt danh): " + ex.Message);
             }
         }
+
+        public async static Task<bool> KiemTraChan(int maTKBiChan, int maTKChan)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "select 1 from public.\"ChanTaiKhoan\" where \"MaTKChan\" = @mChan AND \"MaTKBiChan\" = @mBiChan";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("mChan", maTKChan);
+                    cmd.Parameters.AddWithValue("mBiChan", maTKBiChan);
+                    var result = await cmd.ExecuteScalarAsync();
+                    if (result != null) return true;
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(cập nhật biệt danh): " + ex.Message);
+            }
+            return false;
+        }
     }
     public class ThongTinDN
     {

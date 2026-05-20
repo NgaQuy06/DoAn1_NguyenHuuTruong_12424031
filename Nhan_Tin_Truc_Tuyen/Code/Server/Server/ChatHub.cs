@@ -170,6 +170,13 @@ namespace Server
                 }
                 int maNgGui = await Npg.LayMaTK(tenNgGui);
                 int maNgNhan = await Npg.LayMaTK(tenNgNhan);
+
+                if (await Npg.KiemTraChan(maNgGui, maNgNhan))
+                {
+                    await Clients.Caller.SendAsync("ThongBaoKetBan", "Bạn đã bị " + tenNgNhan + " chặn, không thể gửi lời mời kết bạn!");
+                    return;
+                }
+
                 await Npg.KetBan(maNgGui, maNgNhan);
                 await Clients.User(tenNgNhan).SendAsync("NhanLoiMoiKetBan", tenNgGui);
                 await Clients.Caller.SendAsync("ThongBaoKetBan", "Đã gửi lời mời kết bạn thành công");
