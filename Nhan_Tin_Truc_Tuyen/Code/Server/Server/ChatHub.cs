@@ -5,6 +5,7 @@ namespace Server
 {
     public class ChatHub : Hub // Trung tâm kết nối
     {
+        public static Dictionary<string, int> dsOTP = new Dictionary<string, int>();
         public async Task GuiTNChung(string user, string mess) // Client phải đặt tên hàm như này để gửi cho server
         {
             try

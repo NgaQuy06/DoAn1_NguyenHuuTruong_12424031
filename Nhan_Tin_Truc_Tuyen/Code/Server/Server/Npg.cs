@@ -161,6 +161,32 @@ namespace Server
             }
         }
 
+        public async static Task<bool> KiemTraEmail(string tenTK, string email)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND \"Email\" = @e";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("u", tenTK.Trim());
+                    cmd.Parameters.AddWithValue("e", email.Trim());
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                Console.WriteLine("Lỗi kiểm tra email: " + e.Message);
+                return false;
+            }
+        }
+
         public async static Task<List<ThongTinTimKiem>> TimKiemBB(string username)
         {
             var list = new List<ThongTinTimKiem>();
