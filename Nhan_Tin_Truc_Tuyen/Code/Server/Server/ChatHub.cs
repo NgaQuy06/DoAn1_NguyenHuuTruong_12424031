@@ -232,6 +232,38 @@ namespace Server
             }
         }
 
+        public async Task DoiMatKhau(int maTK, string matKhauCu, string matKhauMoi)
+        {
+            try
+            {
+                bool kt = await Npg.KiemTraMKCu(maTK, matKhauCu);
+                if (!kt)
+                {
+                    await Clients.Caller.SendAsync("Loi", "Mật khẩu cũ không đúng!");
+                    return;
+                }
+                await Npg.DoiMatKhau(maTK, matKhauMoi);
+                await Clients.Caller.SendAsync("ThongBaoDoiMK", "Đổi mật khẩu thành công!");
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
+        public async Task XoaTaiKhoan(int maTK)
+        {
+            try
+            {
+                await Npg.XoaTaiKhoan(maTK);
+                await Clients.Caller.SendAsync("ThongBaoXoa", "Thành công!");
+            }
+            catch (Exception ex)
+            {
+                await Clients.Caller.SendAsync("Loi", ex.Message);
+            }
+        }
+
         public override async Task OnConnectedAsync()
         {
             Console.WriteLine(Context.UserIdentifier + " đã kết nối đến máy chủ vào lúc " + DateTime.Now);

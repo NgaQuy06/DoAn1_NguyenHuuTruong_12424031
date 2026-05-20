@@ -894,6 +894,70 @@ namespace Server
             }
             return false;
         }
+
+        public async static Task<bool> KiemTraMKCu(int maTK, string matKhauCu)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"MaTK\" = @maTK AND \"MatKhau\" = @mk";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    cmd.Parameters.AddWithValue("mk", matKhauCu);
+                    var reader = await cmd.ExecuteScalarAsync();
+                    if (reader != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(kiểm tra mật khẩu cũ): " + ex.Message);
+            }
+            return false;
+        }
+
+        public async static Task DoiMatKhau(int maTK, string matKhauMoi)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "UPDATE public.\"TaiKhoan\" SET \"MatKhau\" = @mk WHERE \"MaTK\" = @t";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("t", maTK);
+                    cmd.Parameters.AddWithValue("mk", matKhauMoi);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(đổi mật khẩu): " + ex.Message);
+            }
+        }
+
+        public async static Task XoaTaiKhoan(int maTK)
+        {
+            try
+            {
+                using var conn = new NpgsqlConnection(str);
+                await conn.OpenAsync();
+                string sql = "DELETE FROM public.\"TaiKhoan\" WHERE \"MaTK\" = @maTK";
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("maTK", maTK);
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Lỗi DB(xóa tài khoản): " + ex.Message);
+            }
+        }
     }
     public class ThongTinDN
     {
