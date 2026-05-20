@@ -165,13 +165,15 @@ namespace Server
         {
             try
             {
+                Console.WriteLine("TK: " + tenTK);
+                Console.WriteLine("Email: " + email);
                 using var conn = new NpgsqlConnection(str);
                 await conn.OpenAsync();
-                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE \"TenTK\" = @u AND LOWER(\"Email\") = @e";
+                string sql = "SELECT 1 FROM public.\"TaiKhoan\" WHERE LOWER(TRIM(\"TenTK\")) = LOWER(TRIM(@u)) AND LOWER(TRIM(\"Email\")) = LOWER(TRIM(@e))";
                 using (var cmd = new NpgsqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("u", tenTK.Trim());
-                    cmd.Parameters.AddWithValue("e", email.Trim().ToLower());
+                    cmd.Parameters.AddWithValue("e", email.Trim());
                     var reader = await cmd.ExecuteScalarAsync();
                     if (reader != null)
                     {
