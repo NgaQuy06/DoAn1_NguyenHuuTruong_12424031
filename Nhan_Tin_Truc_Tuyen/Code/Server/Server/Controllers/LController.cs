@@ -60,7 +60,7 @@ namespace Server.Controllers
                     return BadRequest(new { message = "Tên tài khoản đã tồn tại!" });
                 }
 
-                string result = await Npg.DangKy(req.TenTK, req.MatKhau, req.Email, req.Sdt);
+                string result = await Npg.DangKy(req.TenTK, req.MatKhau, req.Email);
                 if (result == "Ok")
                 {
                     return Ok(new { message = "Đăng ký thành công!" });
